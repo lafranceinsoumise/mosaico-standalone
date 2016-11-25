@@ -1,0 +1,12 @@
+// Put here your email sending configurations!
+module.exports = {
+  emailTransport: {
+    // host: 'yoursmtpserver',
+    // port: 25,
+    // auth: { user: '####', pass: '####' }
+  },
+  emailOptions: {
+    from: 'Your Name Here <example@example.com>', // sender address
+    // bcc: 'perso@guilro.com',
+  }
+};

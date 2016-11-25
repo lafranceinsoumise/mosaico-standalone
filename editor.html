@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=1024, initial-scale=1">
+
+    <script src="/mosaico/vendor/jquery.min.js"></script>
+    <script src="/mosaico/vendor/knockout.js"></script>
+    <script src="/mosaico/vendor/jquery-ui.min.js"></script>
+    <script src="/mosaico/vendor/jquery.ui.touch-punch.min.js"></script>
+    <script src="/mosaico/vendor/load-image.all.min.js"></script>
+    <script src="/mosaico/vendor/canvas-to-blob.min.js"></script>
+    <script src="/mosaico/vendor/jquery.iframe-transport.js"></script>
+    <script src="/mosaico/vendor/jquery.fileupload.js"></script>
+    <script src="/mosaico/vendor/jquery.fileupload-process.js"></script>
+    <script src="/mosaico/vendor/jquery.fileupload-image.js"></script>
+    <script src="/mosaico/vendor/jquery.fileupload-validate.js"></script>
+    <script src="/mosaico/vendor/knockout-jqueryui.min.js"></script>
+    <script src="/mosaico/vendor/tinymce.min.js"></script>
+    <script src="/mosaico/mosaico.min.js?v=0.15"></script>
+    <script>
+      $(function() {
+        if (!Mosaico.isCompatible()) {
+          alert('Update your browser!');
+          return;
+        }
+
+
+        var plugins = [function(vm) {
+          vm.logoPath = '/mosaico/img/mosaico32.png'
+        }];
+
+        var ok = Mosaico.init({
+          imgProcessorBackend: '/img/',
+          emailProcessorBackend: '/dl/',
+          titleToken: "MOSAICO Responsive Email Designer",
+          fileuploadConfig: {
+            url: '/upload/',
+          },
+        }, plugins);
+
+        if (!ok) {
+          alert('Missing initialization hash.');
+        }
+      });
+    </script>
+    <link rel="stylesheet" href="/mosaico/mosaico-material.min.css?v=0.10" />
+    <link rel="stylesheet" href="/mosaico/vendor/notoregular/stylesheet.css" />
+  </head>
+  <body class="mo-standalone"></body>
+</html>

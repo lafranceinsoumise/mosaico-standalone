@@ -1,0 +1,38 @@
+{
+  "name": "mosaico-standalone",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Standalone email composer integrating Mosaico.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "eslint . --ignore-path .gitignore"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guilro/mosaico-standalone-composer.git"
+  },
+  "keywords": [
+    "mosaico",
+    "email",
+    "composer",
+    "responsive"
+  ],
+  "author": "Guillaume Royer <perso@guilro.com>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/guilro/mosaico-standalone-composer/issues"
+  },
+  "homepage": "https://github.com/guilro/mosaico-standalone-composer#readme",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "gm": "^1.23.0",
+    "jquery-file-upload-middleware": "^0.1.8",
+    "morgan": "^1.7.0",
+    "nodemailer": "^2.6.4"
+  },
+  "devDependencies": {
+    "eslint": "^3.10.2"
+  }
+}
