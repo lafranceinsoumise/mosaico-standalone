@@ -50,4 +50,5 @@ jspm_packages
 config.js
 .tmp
 uploads
+emails
 templates/custom

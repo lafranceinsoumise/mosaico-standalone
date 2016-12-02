@@ -8,12 +8,11 @@ const morgan = require('morgan');
 const nodemailer = require('nodemailer');
 const path = require('path');
 const upload = require('jquery-file-upload-middleware');
+const newUuid = require('uuid/v4');
 
 const config = require('./config');
 var app = express();
 var mailer = nodemailer.createTransport(config.emailTransport);
-
-var storage;
 
 var uploadOptions = {
   tmpDir: '.tmp',
@@ -27,6 +26,7 @@ app.use('/mosaico', express.static('./mosaico'));
 app.use('/templates', express.static('./templates'));
 app.use('/uploads', express.static('./uploads'));
 app.get('/editor', (req, res) => res.sendFile(path.join(__dirname, 'editor.html')));
+app.use('/emails', express.static('./emails'));
 
 app.get('env') === 'development' && app.use(morgan('dev'));
 
@@ -35,14 +35,6 @@ app.use(bodyParser.urlencoded({
   limit: '5mb',
   extended: true
 }));
-
-app.get('/', (req, res) => {
-  if (storage) {
-    return res.send(storage);
-  }
-
-  return res.send(404);
-});
 
 /**
  * /upload
@@ -191,9 +183,10 @@ app.post('/save', (req, res, next) => {
 
   if (!source) return next(new Error('No content.'));
 
-  storage = source;
+  var uuid = (req.body.uuid || newUuid());
+  fs.writeFile(`./emails/${uuid}.html`, source);
 
-  res.send(202);
+  res.status(202).json({uuid: uuid});
 });
 
 

@@ -55,18 +55,19 @@
             saveCmd.enabled(false);
             var html = vm.exportHTML();
             var post = $.post(base + '/save', {
+              uuid: saveCmd.uuid,
               html: vm.exportHTML()
             });
             post.fail(function() {
               vm.notifier.error(vm.t('Unexpected error talking to server.'));
             });
-            post.success(function() {
+            post.success(function(res) {
               vm.notifier.success(vm.t('Saved!'));
+              saveCmd.uuid = res.uuid;
             });
             post.always(function() {
-              testCmd.enabled(true);
+              saveCmd.enabled(true);
             });
-            saveCmd.enabled(true);
           };
 
           vm.save = saveCmd;

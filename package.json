@@ -30,7 +30,8 @@
     "gm": "^1.23.0",
     "jquery-file-upload-middleware": "^0.1.8",
     "morgan": "^1.7.0",
-    "nodemailer": "^2.6.4"
+    "nodemailer": "^2.6.4",
+    "uuid": "^3.0.1"
   },
   "devDependencies": {
     "eslint": "^3.10.2"
