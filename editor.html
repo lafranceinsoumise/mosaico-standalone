@@ -53,7 +53,6 @@
           };
           saveCmd.execute = function() {
             saveCmd.enabled(false);
-            var html = vm.exportHTML();
             var post = $.post(base + '/storage/save', {
               uuid: saveCmd.uuid,
               html: vm.exportHTML()
@@ -71,6 +70,38 @@
           };
 
           vm.save = saveCmd;
+
+          // Test command
+          var testCmd = {
+            name: 'Test', // l10n happens in the template
+            enabled: ko.observable(true)
+          };
+          testCmd.execute = function() {
+            testCmd.enabled(false);
+            var email = vm.t('Insert here the recipient email address');
+            email = prompt(vm.t('Test email address'), email);
+            if (!email || !email.match(/@/)) {
+              alert(vm.t('Invalid email address'));
+              testCmd.enabled(true);
+              return
+            }
+            var post = $.post(base + '/dl/', {
+              action: 'email',
+              rcpt: email,
+              subject: "[test]",
+              html: vm.exportHTML()
+            });
+            post.fail(function() {
+              vm.notifier.error(vm.t('Unexpected error talking to server.'));
+            });
+            post.success(function() {
+              vm.notifier.success(vm.t("Test email sent..."));
+            });
+            post.always(function() {
+              testCmd.enabled(true);
+            });
+          };
+          vm.test = testCmd;
         }];
 
         var ok = Mosaico.init({
