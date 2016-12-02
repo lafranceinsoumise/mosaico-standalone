@@ -11,6 +11,7 @@ const config = require('../config');
 const passport = require('./authentication');
 const RedisStore = require('connect-redis')(session);
 
+app.enable('trust proxy');
 app.set('views', './server/views');
 app.set('view engine', 'pug');
 app.use(bodyParser.json({limit: '5mb'}));
