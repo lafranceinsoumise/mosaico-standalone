@@ -13,6 +13,8 @@ const config = require('./config');
 var app = express();
 var mailer = nodemailer.createTransport(config.emailTransport);
 
+var storage;
+
 var uploadOptions = {
   tmpDir: '.tmp',
   uploadDir: './uploads',
@@ -33,6 +35,14 @@ app.use(bodyParser.urlencoded({
   limit: '5mb',
   extended: true
 }));
+
+app.get('/', (req, res) => {
+  if (storage) {
+    return res.send(storage);
+  }
+
+  return res.send(404);
+});
 
 /**
  * /upload
@@ -174,6 +184,16 @@ app.post('/dl', (req, res, next) => {
       return res.send('OK: '+info.response);
     });
   }
+});
+
+app.post('/save', (req, res, next) => {
+  var source = req.body.html;
+
+  if (!source) return next(new Error('No content.'));
+
+  storage = source;
+
+  res.send(202);
 });
 
 

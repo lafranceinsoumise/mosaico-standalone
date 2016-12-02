@@ -25,17 +25,59 @@
           return;
         }
 
-
+        var base = window.location.protocol + '//' + window.location.host;
         var plugins = [function(vm) {
-          vm.logoPath = '/mosaico/img/mosaico32.png'
+          // Logo path
+          vm.logoPath = '/mosaico/img/mosaico32.png';
+
+          // Download command
+          var downloadCmd = {
+            name: 'Download', // l10n happens in the template
+            enabled: ko.observable(true)
+          };
+          downloadCmd.execute = function() {
+            downloadCmd.enabled(false);
+            vm.notifier.info(vm.t('Downloading...'));
+            vm.exportHTMLtoTextarea('#downloadHtmlTextarea');
+            document.getElementById('downloadForm').setAttribute('action', '/dl/');
+            document.getElementById('downloadForm').submit();
+            downloadCmd.enabled(true);
+          };
+
+          vm.download = downloadCmd;
+
+          // Save command
+          var saveCmd = {
+            name: 'Save', // l10n happens in the template
+            enabled: ko.observable(true)
+          };
+          saveCmd.execute = function() {
+            saveCmd.enabled(false);
+            var html = vm.exportHTML();
+            var post = $.post(base + '/save', {
+              html: vm.exportHTML()
+            });
+            post.fail(function() {
+              vm.notifier.error(vm.t('Unexpected error talking to server.'));
+            });
+            post.success(function() {
+              vm.notifier.success(vm.t('Saved!'));
+            });
+            post.always(function() {
+              testCmd.enabled(true);
+            });
+            saveCmd.enabled(true);
+          };
+
+          vm.save = saveCmd;
         }];
 
         var ok = Mosaico.init({
-          imgProcessorBackend: '/img/',
-          emailProcessorBackend: '/dl/',
+          imgProcessorBackend: base + '/img/',
+          emailProcessorBackend: base +'/dl/',
           titleToken: "MOSAICO Responsive Email Designer",
           fileuploadConfig: {
-            url: '/upload/',
+            url: base + '/upload/',
           },
         }, plugins);
 
