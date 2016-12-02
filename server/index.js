@@ -2,12 +2,11 @@
 
 const bodyParser = require('body-parser');
 const express = require('express');
-const fs = require('fs');
 const morgan = require('morgan');
 const path = require('path');
-const newUuid = require('uuid/v4');
 
 var app = express();
+const passport = require('./authentication');
 
 // Static files
 app.use('/mosaico', express.static('./mosaico'));
@@ -23,6 +22,22 @@ app.use(bodyParser.urlencoded({
   limit: '5mb',
   extended: true
 }));
+
+app.use(require('express-session')({ secret: 'keyboard cat', resave: true, saveUninitialized: true }));
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.set('views', './server/views');
+app.set('view engine', 'pug');
+app.get('/login', (req, res) => {
+  res.render('login');
+});
+app.use('/login', passport.authenticate('local', {successRedirect: '/storage/list', failureRedirect: '/login'}));
+app.use('/', (req, res, next) => {
+  if (!req.user) res.redirect('/login');
+
+  return next();
+});
 
 /**
  * /upload/
@@ -53,17 +68,7 @@ app.get('/img', require('./img'));
  */
 app.post('/dl', require('./dl'));
 
-app.post('/save', (req, res, next) => {
-  var source = req.body.html;
-
-  if (!source) return next(new Error('No content.'));
-
-  var uuid = (req.body.uuid || newUuid());
-  fs.writeFile(`./emails/${uuid}.html`, source);
-
-  res.status(202).json({uuid: uuid});
-});
-
+app.use('/storage', require('./storage'));
 
 app.listen(process.env.PORT || 3000, '127.0.0.1', (err) => {
   if (err) return console.error(err);

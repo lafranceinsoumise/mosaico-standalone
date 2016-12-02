@@ -25,7 +25,7 @@ module.exports = (req, res, next) => {
     mailer.sendMail(mailOptions, (err, info) => {
       if (err) return next(err);
 
-      return res.send('OK: '+info.response);
+      return res.send('OK: '+ info.response);
     });
   }
 };

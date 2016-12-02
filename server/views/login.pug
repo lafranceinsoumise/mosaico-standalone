@@ -1,0 +1,9 @@
+extends layout
+
+block one-column
+  form(method="post",style="padding: 20%;")
+    .form-group
+      input.form-control(name="username" placeholder="Username")
+    .form-group
+      input.form-control(type="password" name="password" placeholder="Password")
+    input.btn.btn-primary.btn-block(type="submit")

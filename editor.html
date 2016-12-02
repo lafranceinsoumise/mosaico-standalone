@@ -54,7 +54,7 @@
           saveCmd.execute = function() {
             saveCmd.enabled(false);
             var html = vm.exportHTML();
-            var post = $.post(base + '/save', {
+            var post = $.post(base + '/storage/save', {
               uuid: saveCmd.uuid,
               html: vm.exportHTML()
             });

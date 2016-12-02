@@ -1,0 +1,35 @@
+extends layout
+
+block one-column
+  table.table
+    tr
+      th Emails
+    each url in list
+      tr
+        td
+          a(href=url)= url
+
+  form.form-horizontal
+    .form-group
+      .col-sm-6
+        select#templateSelector.form-control(required)
+          option(value="") Choose a template
+            each template in templates
+              option(value=template.url)= template.name
+      .col-sm-6
+        button#newEmailBtn.btn.btn-block.btn-primary(disabled) Create new email
+        script.
+          (function() {
+            document.getElementById('templateSelector').onchange = function() {
+              document.getElementById('newEmailBtn').disabled = !document.getElementById('templateSelector').value;
+            };
+
+            document.getElementById('newEmailBtn').onclick = function(e) {
+              e.preventDefault();
+              if (!document.getElementById('templateSelector').value) {
+                return;
+              }
+
+              window.location.href = document.getElementById('templateSelector').value;
+            };
+          })();
