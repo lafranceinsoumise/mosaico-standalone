@@ -3,23 +3,11 @@
 const bodyParser = require('body-parser');
 const express = require('express');
 const fs = require('fs');
-const gm = require('gm').subClass({imageMagick: true});
 const morgan = require('morgan');
-const nodemailer = require('nodemailer');
 const path = require('path');
-const upload = require('jquery-file-upload-middleware');
 const newUuid = require('uuid/v4');
 
-const config = require('../config');
 var app = express();
-var mailer = nodemailer.createTransport(config.emailTransport);
-
-var uploadOptions = {
-  tmpDir: '.tmp',
-  uploadDir: './uploads',
-  uploadUrl: '/uploads',
-  imageVersions: { thumbnail: { width: 90, height: 90 } }
-};
 
 // Static files
 app.use('/mosaico', express.static('./mosaico'));
@@ -37,55 +25,12 @@ app.use(bodyParser.urlencoded({
 }));
 
 /**
- * /upload
+ * /upload/
  * GET returns a JSON list of previously uploaded images
  * POST to upload images (using the jQuery-file-upload protocol)
  * when uploading it also create thumbnails for each uploaded image.
  */
-app.use('/upload', upload.fileHandler(uploadOptions));
-app.get('/upload/', (req, res, next) => {
-  var baseUrl = req.protocol + '://' + req.get('host') + uploadOptions.uploadUrl;
-  var files = [];
-  var counter = 1;
-
-  var finish = () => {
-    if (!--counter) {
-      return res.json({
-        files: files
-      });
-    }
-  };
-
-  fs.readdir(uploadOptions.uploadDir, (err, list) => {
-    if (err) return next(err);
-
-    list.forEach(name => {
-      counter++;
-      fs.stat(path.join(uploadOptions.uploadDir, name), (err, stats) => {
-        if (err) return next(err);
-
-        if (stats.isFile()) {
-          var file = {
-            name: name,
-            url: [baseUrl, name].join('/'),
-            size: stats.size
-          };
-          uploadOptions.imageVersions.keys().forEach(version => {
-            fs.access('', fs.constants.F_OK  | fs.constants.R_OK, (err) => {
-              if (!err) {
-                file.thumbnailUrl = [baseUrl, version, name].join('/');
-                files.push[file];
-                finish();
-              }
-            });
-          });
-          finish();
-        }
-      });
-    });
-    finish();
-  });
-});
+app.use('/upload/', require('./upload'));
 
 /*
  * GET with src, method and params query values
@@ -98,54 +43,7 @@ app.get('/upload/', (req, res, next) => {
  * resize the image to be inside the dimensions.
  * this uses "gm" library to do manipulation (you need ImageMagick installed in your system).
  */
-app.get('/img', (req, res, next) => {
-  var [width, height] = req.query.params.split(',');
-
-  if (req.query.method == 'placeholder') {
-    var out = gm(width, height, '#707070');
-    res.set('Content-Type', 'image/png');
-    var x = 0, y = 0;
-    var size = 40;
-    // stripes
-    while (y < height) {
-      out = out
-        .fill('#808080')
-        .drawPolygon([x, y], [x + size, y], [x + size*2, y + size], [x + size*2, y + size*2])
-        .drawPolygon([x, y + size], [x + size, y + size*2], [x, y + size*2]);
-      x = x + size*2;
-      if (x > width) { x = 0; y = y + size*2; }
-    }
-    // text
-    out = out.fill('#B0B0B0').fontSize(20).drawText(0, 0, width + ' x ' + height, 'center');
-    out.stream('png').pipe(res);
-
-    return;
-  }
-
-  if (req.query.method === 'resize') {
-    var ir = gm(req.query.src);
-    ir.format((err, format) => {
-      if (err) return next(err);
-
-      res.set('Content-Type', 'image/'+format.toLowerCase());
-      ir.autoOrient().resize(width == 'null' ? null : width, height == 'null' ? null : height).stream().pipe(res);
-    });
-
-    return;
-  }
-
-  if (req.query.method === 'cover') {
-    var ic = gm(req.query.src);
-    ic.format((err,format) => {
-      if (err) return next(err);
-
-      res.set('Content-Type', 'image/'+format.toLowerCase());
-      ic.autoOrient().resize(width,height+'^').gravity('Center').extent(width, height+'>').stream().pipe(res);
-    });
-
-    return;
-  }
-});
+app.get('/img', require('./img'));
 
 /**
  * POST
@@ -153,30 +51,7 @@ app.get('/img', (req, res, next) => {
  * (it does inlining using Styliner) since Mosaico 0.15 CSS inlining happens in the client.
  * if asked to send an email it sends it using nodemailer
  */
-app.post('/dl', (req, res, next) => {
-  var source = req.body.html;
-
-  if (req.body.action === 'download') {
-    res.setHeader('Content-disposition', 'attachment; filename=' + req.body.filename);
-    res.setHeader('Content-type', 'text/html');
-    res.write(source);
-    return res.end();
-  }
-
-  if (req.body.action === 'email') {
-    var mailOptions = Object.assign({
-      to: req.body.rcpt, // list of receivers
-      subject: req.body.subject, // Subject line
-      html: source // html body
-    }, config.emailOptions);
-
-    mailer.sendMail(mailOptions, (err, info) => {
-      if (err) return next(err);
-
-      return res.send('OK: '+info.response);
-    });
-  }
-});
+app.post('/dl', require('./dl'));
 
 app.post('/save', (req, res, next) => {
   var source = req.body.html;
