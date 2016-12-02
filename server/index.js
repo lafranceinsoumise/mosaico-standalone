@@ -4,10 +4,12 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
+const session = require('express-session');
 
 var app = express();
 const config = require('../config');
 const passport = require('./authentication');
+const RedisStore = require('connect-redis')(session);
 
 app.set('views', './server/views');
 app.set('view engine', 'pug');
@@ -17,7 +19,12 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 
-app.use(require('express-session')({ secret: config.secret, resave: true, saveUninitialized: true }));
+app.use(session({
+  store: new RedisStore(),
+  secret: config.secret,
+  resave: true,
+  saveUninitialized: true
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 
