@@ -12,5 +12,6 @@ module.exports = {
   credentials: {
     username: 'admin',
     password: 'password'
-  }
+  },
+  secret: 'cat keyboard'
 };

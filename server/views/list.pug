@@ -4,10 +4,15 @@ block one-column
   table.table
     tr
       th Emails
-    each url in list
+      th View
+      th Edit
+    each email in list
       tr
+        td= email.id
         td
-          a(href=url)= url
+          a(href=email.view) View
+        td
+          a(href=email.edit) Edit
 
   form.form-horizontal
     .form-group

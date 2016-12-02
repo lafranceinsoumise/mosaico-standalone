@@ -6,29 +6,21 @@ const morgan = require('morgan');
 const path = require('path');
 
 var app = express();
+const config = require('../config');
 const passport = require('./authentication');
 
-// Static files
-app.use('/mosaico', express.static('./mosaico'));
-app.use('/templates', express.static('./templates'));
-app.use('/uploads', express.static('./uploads'));
-app.get('/editor', (req, res) => res.sendFile(path.join(process.cwd(), 'editor.html')));
-app.use('/emails', express.static('./emails'));
-
-app.get('env') === 'development' && app.use(morgan('dev'));
-
+app.set('views', './server/views');
+app.set('view engine', 'pug');
 app.use(bodyParser.json({limit: '5mb'}));
 app.use(bodyParser.urlencoded({
   limit: '5mb',
   extended: true
 }));
 
-app.use(require('express-session')({ secret: 'keyboard cat', resave: true, saveUninitialized: true }));
+app.use(require('express-session')({ secret: config.secret, resave: true, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.set('views', './server/views');
-app.set('view engine', 'pug');
 app.get('/login', (req, res) => {
   res.render('login');
 });
@@ -38,6 +30,15 @@ app.use('/', (req, res, next) => {
 
   return next();
 });
+
+// Static files
+app.use('/mosaico', express.static('./mosaico'));
+app.use('/templates', express.static('./templates'));
+app.use('/uploads', express.static('./uploads'));
+app.get('/editor', (req, res) => res.sendFile(path.join(process.cwd(), 'editor.html')));
+app.use('/emails', express.static('./emails'));
+
+app.get('env') === 'development' && app.use(morgan('dev'));
 
 /**
  * /upload/

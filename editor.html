@@ -55,7 +55,9 @@
             saveCmd.enabled(false);
             var post = $.post(base + '/storage/save', {
               uuid: saveCmd.uuid,
-              html: vm.exportHTML()
+              html: vm.exportHTML(),
+              metadata: vm.exportMetadata(),
+              content: vm.exportJSON()
             });
             post.fail(function() {
               vm.notifier.error(vm.t('Unexpected error talking to server.'));
@@ -104,17 +106,27 @@
           vm.test = testCmd;
         }];
 
-        var ok = Mosaico.init({
+        var options = {
           imgProcessorBackend: base + '/img/',
           emailProcessorBackend: base +'/dl/',
           titleToken: "MOSAICO Responsive Email Designer",
           fileuploadConfig: {
             url: base + '/upload/',
           },
-        }, plugins);
+        };
 
-        if (!ok) {
-          alert('Missing initialization hash.');
+        if (location.hash && location.hash.indexOf('#edit') === 0) {
+          $.get('/emails/' + location.hash.split('/')[1] + '.json', null, function(data) {
+            options.data = JSON.stringify(data);
+
+            Mosaico.init(options, plugins);
+          }, 'json');
+        } else {
+          if (!location.hash) {
+            options.template = '/templates/dist/versafix-1/template-versafix-1.html';
+          }
+
+          Mosaico.init(options, plugins);
         }
       });
     </script>
