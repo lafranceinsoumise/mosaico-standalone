@@ -13,5 +13,6 @@ module.exports = {
     username: 'admin',
     password: 'password'
   },
-  secret: 'cat keyboard'
+  secret: 'cat keyboard',
+  https: false
 };
