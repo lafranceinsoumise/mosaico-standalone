@@ -1,6 +1,7 @@
 'use strict';
 
 const gm = require('gm').subClass({imageMagick: true});
+const request = require('request');
 
 module.exports = (req, res, next) => {
   var [width, height] = req.query.params.split(',');
@@ -27,8 +28,8 @@ module.exports = (req, res, next) => {
   }
 
   if (req.query.method === 'resize') {
-    var ir = gm(req.query.src);
-    ir.format((err, format) => {
+    var ir = gm(request(req.query.src));
+    ir.format({bufferStream: true}, (err, format) => {
       if (err) return next(err);
 
       res.set('Content-Type', 'image/'+format.toLowerCase());
@@ -39,8 +40,8 @@ module.exports = (req, res, next) => {
   }
 
   if (req.query.method === 'cover') {
-    var ic = gm(req.query.src);
-    ic.format((err,format) => {
+    var ic = gm(request(req.query.src));
+    ic.format({bufferStream: true}, (err,format) => {
       if (err) return next(err);
 
       res.set('Content-Type', 'image/'+format.toLowerCase());
