@@ -3,6 +3,17 @@
 const gm = require('gm').subClass({imageMagick: true});
 const request = require('request');
 
+/*
+ * GET with src, method and params query values
+ * method can be "placeholder", "cover" or "resize"
+ * "placeholder" will return a placeholder image with the given width/height
+ * (encoded in params as "width,height")
+ * "cover" will resize the image keeping the aspect ratio and covering the whole
+ * dimension (cutting it if different A/R)
+ * "resize" can receive one dimension to resize while keeping the A/R, or 2 to
+ * resize the image to be inside the dimensions.
+ * this uses "gm" library to do manipulation (you need ImageMagick installed in your system).
+ */
 module.exports = (req, res, next) => {
   var [width, height] = req.query.params.split(',');
 

@@ -17,14 +17,25 @@ app.use('/templates', express.static('./templates'));
 app.use('/uploads', express.static('./uploads'));
 app.use('/emails', express.static('./emails'));
 
+// Config
 app.enable('trust proxy');
 app.set('views', './server/views');
 app.set('view engine', 'pug');
+app.get('env') === 'development' && app.use(morgan('dev'));
 app.use(bodyParser.json({limit: '5mb'}));
 app.use(bodyParser.urlencoded({
   limit: '5mb',
   extended: true
 }));
+
+// Public routes
+
+/**
+ * See doc in module
+ */
+app.get('/img', require('./img'));
+
+// Authentication
 
 app.use(session({
   store: new RedisStore(),
@@ -39,14 +50,19 @@ app.get('/login', (req, res) => {
   res.render('login');
 });
 app.use('/login', passport.authenticate('local', {successRedirect: '/storage/list', failureRedirect: '/login'}));
+
+// Private routes
+
 app.use('/', (req, res, next) => {
   if (!req.user) res.redirect('/login');
 
   return next();
 });
 
-app.get('env') === 'development' && app.use(morgan('dev'));
-
+/**
+ * /editor
+ * GET load Mosaico
+ */
 app.get('/editor', (req, res) => res.sendFile(path.join(process.cwd(), 'editor.html')));
 
 /**
@@ -57,19 +73,6 @@ app.get('/editor', (req, res) => res.sendFile(path.join(process.cwd(), 'editor.h
  */
 app.use('/upload', require('./upload'));
 
-/*
- * GET with src, method and params query values
- * method can be "placeholder", "cover" or "resize"
- * "placeholder" will return a placeholder image with the given width/height
- * (encoded in params as "width,height")
- * "cover" will resize the image keeping the aspect ratio and covering the whole
- * dimension (cutting it if different A/R)
- * "resize" can receive one dimension to resize while keeping the A/R, or 2 to
- * resize the image to be inside the dimensions.
- * this uses "gm" library to do manipulation (you need ImageMagick installed in your system).
- */
-app.get('/img', require('./img'));
-
 /**
  * POST
  * receives a post with the html body and a parameter asking for "download" or "email".
@@ -78,6 +81,9 @@ app.get('/img', require('./img'));
  */
 app.post('/dl', require('./dl'));
 
+/**
+ * See docs in module
+ */
 app.use('/storage', require('./storage'));
 
 app.listen(process.env.PORT || 3000, '127.0.0.1', (err) => {
