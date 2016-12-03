@@ -11,6 +11,12 @@ const config = require('../config');
 const passport = require('./authentication');
 const RedisStore = require('connect-redis')(session);
 
+// Static files
+app.use('/mosaico', express.static('./mosaico'));
+app.use('/templates', express.static('./templates'));
+app.use('/uploads', express.static('./uploads'));
+app.use('/emails', express.static('./emails'));
+
 app.enable('trust proxy');
 app.set('views', './server/views');
 app.set('view engine', 'pug');
@@ -39,14 +45,9 @@ app.use('/', (req, res, next) => {
   return next();
 });
 
-// Static files
-app.use('/mosaico', express.static('./mosaico'));
-app.use('/templates', express.static('./templates'));
-app.use('/uploads', express.static('./uploads'));
-app.get('/editor', (req, res) => res.sendFile(path.join(process.cwd(), 'editor.html')));
-app.use('/emails', express.static('./emails'));
-
 app.get('env') === 'development' && app.use(morgan('dev'));
+
+app.get('/editor', (req, res) => res.sendFile(path.join(process.cwd(), 'editor.html')));
 
 /**
  * /upload/
