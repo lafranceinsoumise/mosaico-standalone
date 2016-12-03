@@ -30,16 +30,16 @@ app.get('/list', wrap(async (req, res, next) => {
       .map(filename => path.basename(filename, '.json'))
       .map(id => ({
         view: '/emails/' + id + '.html',
-        edit: '/editor#edit/' + id,
+        edit: '/edit/' + id,
         id: id
       }));
 
     var templates = (await fs.readdir('./templates/dist'))
-      .map(name => ({name: name, url: `/editor#/templates/dist/${name}/template-${name}.html`}))
+      .map(name => ({name: name, url: `/new?template=/templates/dist/${name}/template-${name}.html`}))
       .concat(
         (await fs.readdir('./templates/custom'))
         .filter(name => (name !== '.gitkeep'))
-        .map(name => ({name: name, url: `/editor#/templates/custom/${name}/template-${name}.html`}))
+        .map(name => ({name: name, url: `/new?template=/templates/custom/${name}/template-${name}.html`}))
       );
 
     res.render('list', {list: urls, templates: templates});

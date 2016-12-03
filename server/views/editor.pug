@@ -1,0 +1,4 @@
+extends layout
+
+block content
+  iframe(id="editor" src='/mosaico#' + (id ? 'edit/' + id : template),frameborder="no")

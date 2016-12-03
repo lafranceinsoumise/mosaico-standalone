@@ -50,6 +50,10 @@ app.get('/login', (req, res) => {
   res.render('login');
 });
 app.use('/login', passport.authenticate('local', {successRedirect: '/storage/list', failureRedirect: '/login'}));
+app.get('/logout', (req, res) => {
+  req.logout();
+  res.redirect('/');
+});
 
 // Private routes
 
@@ -59,11 +63,21 @@ app.use('/', (req, res, next) => {
   return next();
 });
 
+app.get('/', (req, res) => {
+  return res.redirect('/storage/list');
+});
+
 /**
  * /editor
  * GET load Mosaico
  */
-app.get('/editor', (req, res) => res.sendFile(path.join(process.cwd(), 'editor.html')));
+app.get('/mosaico', (req, res) => res.sendFile(path.join(process.cwd(), 'mosaico.html')));
+app.get('/new', (req, res) => {
+  res.render('editor', {template: req.query.template})
+});
+app.get('/edit/:id', (req, res) => {
+  res.render('editor', {id: req.params.id});
+});
 
 /**
  * /upload/

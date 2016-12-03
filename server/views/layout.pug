@@ -2,9 +2,39 @@ doctype
 html
   head
     link(href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/journal/bootstrap.min.css", rel="stylesheet", integrity="sha384-1L94saFXWAvEw88RkpRz8r28eQMvt7kG9ux3DdCqya/P3CfLNtgqzMnyaUa49Pl2", crossorigin="anonymous")
+    style.
+      html, body {
+        max-height: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .wrapper {
+        height:100%;
+        padding-bottom:60px;
+        margin-bottom:-60px;
+      }
+
+      .wrapper #editor {
+        margin-top:-20px;
+        width:100%;
+        height:100%;
+      }
   body
     block body
-      .container
-        .row
-          .col-xs-12.col-sm-10.col-sm-offset-1.col-md-8.col-md-offset-2.col-lg-6.col-lg-offset-3
-            block one-column
+      nav.navbar.navbar-default
+        .container
+          .collapse.navbar-collapse
+            ul.nav.navbar-nav
+              li
+                a(href="/storage/list") Emails
+            ul.nav.navbar-nav.navbar-right
+              li
+                a(href="/logout") Logout
+      .wrapper
+        block content
+          .container
+            .row
+              .col-xs-12.col-sm-10.col-sm-offset-1.col-md-8.col-md-offset-2.col-lg-6.col-lg-offset-3
+                block one-column
+    script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js", integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa", crossorigin="anonymous")
