@@ -55,7 +55,7 @@ app.get('/editor', (req, res) => res.sendFile(path.join(process.cwd(), 'editor.h
  * POST to upload images (using the jQuery-file-upload protocol)
  * when uploading it also create thumbnails for each uploaded image.
  */
-app.use('/upload/', require('./upload'));
+app.use('/upload', require('./upload'));
 
 /*
  * GET with src, method and params query values
