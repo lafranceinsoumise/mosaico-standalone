@@ -77,7 +77,7 @@ app.get('/', (req, res) => {
  */
 app.get('/mosaico', (req, res) => res.sendFile(path.join(process.cwd(), 'mosaico.html')));
 app.get('/new', (req, res) => {
-  res.render('editor', {template: req.query.template})
+  res.render('editor', {template: req.query.template});
 });
 app.get('/edit/:id', (req, res) => {
   res.render('editor', {id: req.params.id});
