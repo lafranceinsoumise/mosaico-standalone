@@ -62,6 +62,8 @@ app.get('/logout', (req, res) => {
 app.use('/', (req, res, next) => {
   if (!req.user) res.redirect('/login');
 
+  res.locals.user = req.user;
+
   return next();
 });
 

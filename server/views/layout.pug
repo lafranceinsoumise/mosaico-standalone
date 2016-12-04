@@ -29,12 +29,16 @@ html
               li
                 a(href="/storage/list") Emails
             ul.nav.navbar-nav.navbar-right
-              li
-                a(href="/logout") Logout
+              li.dropdown
+                a(href="#", data-toggle="dropdown", role="button", aria-haspopup="true", aria-expanded="false").dropdown-toggle #{user} <span class="caret"></span>
+                ul.dropdown-menu
+                  li
+                    a(href="/logout") Logout
       .wrapper
         block content
           .container
             .row
               .col-xs-12.col-sm-10.col-sm-offset-1.col-md-8.col-md-offset-2.col-lg-6.col-lg-offset-3
                 block one-column
+    script(src="https://code.jquery.com/jquery-2.2.4.min.js", integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=", crossorigin="anonymous")
     script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js", integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa", crossorigin="anonymous")

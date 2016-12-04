@@ -3,21 +3,22 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 
-const credentials = require('../config').credentials;
+const users = require('../config').users;
 
 passport.use(new LocalStrategy((username, password, done) => {
-  if (credentials.username !== username || credentials.password !== password) {
+  var user = users.filter(u => (u.username == username && u.password == password));
+  if (user.length == 0) {
     return done(null, false, {message: 'Incorrect credentials.'});
   }
 
-  return done(null, credentials.username);
+  return done(null, user[0].username);
 }));
 
-passport.serializeUser(function(user, done) {
+passport.serializeUser((user, done) => {
   done(null, user);
 });
 
-passport.deserializeUser(function(user, done) {
+passport.deserializeUser((user, done) => {
   done(null, user);
 });
 
