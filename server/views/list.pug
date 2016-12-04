@@ -4,11 +4,13 @@ block one-column
   table.table
     tr
       th Emails
+      th Creation
       th View
       th Edit
     each email in list
       tr
-        td= email.id
+        td= email.name
+        td= moment(email.created).fromNow()
         td
           a(href=email.view) View
         td

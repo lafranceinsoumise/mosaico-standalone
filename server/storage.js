@@ -25,24 +25,32 @@ app.post('/save', wrap(async (req, res, next) => {
 
 app.get('/list', wrap(async (req, res, next) => {
   try {
-    var urls = (await fs.readdir('./emails'))
+    var mails = await Promise.all(
+      (await fs.readdir('./emails'))
       .filter(filename => (filename.endsWith('.json')))
-      .map(filename => path.basename(filename, '.json'))
-      .map(id => ({
-        view: '/emails/' + id + '.html',
-        edit: '/edit/' + id,
-        id: id
-      }));
+      .map(async (filename) => {
+        var data = JSON.parse(await fs.readFile(path.join('./emails', filename)));
+        var id = path.basename(filename, '.json');
+
+        return {
+          view: '/emails/' + id + '.html',
+          edit: '/edit/' + id,
+          id: id,
+          name: data.metadata.name,
+          created: data.metadata.created
+        };
+      })
+    );
 
     var templates = (await fs.readdir('./templates/dist'))
       .map(name => ({name: name, url: `/new?template=/templates/dist/${name}/template-${name}.html`}))
       .concat(
         (await fs.readdir('./templates/custom'))
         .filter(name => (name !== '.gitkeep'))
-        .map(name => ({name: name, url: `/new?template=/templates/custom/${name}/template-${name}.html`}))
+        .map(name => ({name: `${name} (Custom)`, url: `/new?template=/templates/custom/${name}/template-${name}.html`}))
       );
 
-    res.render('list', {list: urls, templates: templates});
+    res.render('list', {list: mails, templates: templates});
   } catch (err) {
     return next(err);
   }

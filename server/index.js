@@ -2,6 +2,7 @@
 
 const bodyParser = require('body-parser');
 const express = require('express');
+const moment = require('moment');
 const morgan = require('morgan');
 const path = require('path');
 const session = require('express-session');
@@ -21,6 +22,7 @@ app.use('/emails', express.static('./emails'));
 app.enable('trust proxy');
 app.set('views', './server/views');
 app.set('view engine', 'pug');
+app.locals.moment = moment;
 app.get('env') === 'development' && app.use(morgan('dev'));
 app.use(bodyParser.json({limit: '5mb'}));
 app.use(bodyParser.urlencoded({
