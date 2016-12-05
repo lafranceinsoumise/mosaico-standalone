@@ -3,16 +3,15 @@
 This project aims at providing an environment for using [Mosaico](mosaico.io).
 
 # Install and run
+
+You need Imagemagick and a local Redis server to make it run.
+
 ```bash
 git clone git@github.com:guilro/mosaico-standalone.git
 cd mosaico-standalone
 npm install
 npm start
 ```
-
-You need a template to start a new mail. Templates are in `templates` directory. Pass the template path to the editor after the hash.
-
-`http://localhost:3000/editor#/templates/dist/versafix-1/template-versafix-1.html`
 
 # Backend
 
