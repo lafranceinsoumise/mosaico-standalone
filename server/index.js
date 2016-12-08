@@ -2,6 +2,7 @@
 
 const bodyParser = require('body-parser');
 const express = require('express');
+const fs = require('mz/fs');
 const moment = require('moment');
 const morgan = require('morgan');
 const path = require('path');
@@ -9,6 +10,7 @@ const session = require('express-session');
 
 var app = express();
 const config = require('../config');
+const wrap = require('./utils/wrap');
 const passport = require('./authentication');
 const RedisStore = require('connect-redis')(session);
 
@@ -31,6 +33,16 @@ app.use(bodyParser.urlencoded({
 }));
 
 // Public routes
+
+app.post('/emails/:file', wrap(async (req, res) => {
+  var content = await fs.readFile(path.join('./emails/', req.params.file), {encoding: 'utf-8'});
+
+  for (var elem in req.body) {
+    content = content.replace(`[${elem}]`, req.body[elem]);
+  }
+
+  return res.send(content);
+}));
 
 /**
  * See doc in module
@@ -60,7 +72,7 @@ app.get('/logout', (req, res) => {
 // Private routes
 
 app.use('/', (req, res, next) => {
-  if (!req.user) res.redirect('/login');
+  if (!req.user && process.NODE_ENV === 'test') res.redirect('/login');
 
   res.locals.user = req.user;
 
@@ -109,3 +121,5 @@ app.listen(process.env.PORT || 3000, '127.0.0.1', (err) => {
 
   console.log('Listening on http://localhost:' + (process.env.PORT || 3000));
 });
+
+module.exports = app;

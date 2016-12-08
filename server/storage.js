@@ -9,9 +9,9 @@ const Redis = require('redis');
 bluebird.promisifyAll(Redis.RedisClient.prototype);
 bluebird.promisifyAll(Redis.Multi.prototype);
 const redis = Redis.createClient();
+const wrap = require('./utils/wrap');
 
 var app = express.Router();
-var wrap = fn => (...args) => fn(...args).catch(args[2]);
 
 app.post('/save', wrap(async (req, res) => {
   var source = req.body.html;
