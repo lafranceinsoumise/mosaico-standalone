@@ -72,7 +72,8 @@ app.get('/logout', (req, res) => {
 // Private routes
 
 app.use('/', (req, res, next) => {
-  if (!req.user && process.NODE_ENV === 'test') res.redirect('/login');
+  if (!req.user && process.env.NODE_ENV !== 'test') res.redirect('/login');
+  if (!req.user && process.env.NODE_ENV === 'test') req.user = 'test';
 
   res.locals.user = req.user;
 
