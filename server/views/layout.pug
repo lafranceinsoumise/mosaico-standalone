@@ -3,22 +3,24 @@ html
   head
     link(href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/journal/bootstrap.min.css", rel="stylesheet", integrity="sha384-1L94saFXWAvEw88RkpRz8r28eQMvt7kG9ux3DdCqya/P3CfLNtgqzMnyaUa49Pl2", crossorigin="anonymous")
     style.
-      html, body {
-        max-height: 100%;
+      html {
         height: 100%;
-        overflow: hidden;
+      }
+
+      body {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
       }
 
       .wrapper {
-        height:100%;
-        padding-bottom:60px;
-        margin-bottom:-60px;
+        flex: 1 1 auto;
+        display: flex;
       }
 
       .wrapper #editor {
         margin-top:-20px;
         width:100%;
-        height:100%;
       }
   body
     block body
