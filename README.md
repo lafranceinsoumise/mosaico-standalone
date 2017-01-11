@@ -10,6 +10,7 @@ You need Imagemagick and a local Redis server to make it run.
 git clone git@github.com:guilro/mosaico-standalone.git
 cd mosaico-standalone
 npm install
+cp config.js.dist config.js # edit this file
 npm start
 ```
 

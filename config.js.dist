@@ -6,8 +6,7 @@ module.exports = {
     // auth: { user: '####', pass: '####' }
   },
   emailOptions: {
-    from: 'Your Name Here <example@example.com>', // sender address
-    // bcc: 'perso@guilro.com',
+    from: 'Your Name Here <example@example.com>'
   },
   users: [
     {
