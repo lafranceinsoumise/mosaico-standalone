@@ -53,10 +53,12 @@
           };
           saveCmd.execute = function() {
             saveCmd.enabled(false);
+            var metadata = JSON.parse(vm.exportMetadata());
+            metadata.name = prompt('Nom du template', metadata.name);
             var post = $.post(base + '/storage/save', {
               uuid: saveCmd.uuid,
               html: vm.exportHTML(),
-              metadata: vm.exportMetadata(),
+              metadata: JSON.stringify(metadata),
               content: vm.exportJSON()
             });
             post.fail(function() {

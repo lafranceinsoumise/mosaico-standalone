@@ -1,10 +1,11 @@
 # Standalone Mosaico
 
-This project aims at providing an environment for using [Mosaico](mosaico.io).
+This project aims at providing an environment for using [Mosaico](https://mosaico.io).
 
 # Install and run
 
-You need Imagemagick and a local Redis server to make it run.
+You need NodeJS 7, Imagemagick and a local Redis server to make it run. The local Redis server can be launch
+using the docker-compose file provided at the root of this project.
 
 ```bash
 git clone git@github.com:guilro/mosaico-standalone.git
