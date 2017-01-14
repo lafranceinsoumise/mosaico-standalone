@@ -26,6 +26,7 @@
         }
 
         var base = window.location.protocol + '//' + window.location.host;
+        var uuid = (location.hash && location.hash.indexOf('#edit') === 0) ? location.hash.split('/')[1] : false;
         var plugins = [function(vm) {
           // Logo path
           vm.logoPath = '/mosaico/img/mosaico32.png';
@@ -49,7 +50,8 @@
           // Save command
           var saveCmd = {
             name: 'Save', // l10n happens in the template
-            enabled: ko.observable(true)
+            enabled: ko.observable(true),
+            uuid: uuid
           };
           saveCmd.execute = function() {
             saveCmd.enabled(false);
@@ -117,8 +119,8 @@
           },
         };
 
-        if (location.hash && location.hash.indexOf('#edit') === 0) {
-          $.get('/emails/' + location.hash.split('/')[1] + '.json', null, function(data) {
+        if (uuid) {
+          $.get('/emails/' + uuid + '.json', null, function(data) {
             options.data = JSON.stringify(data);
 
             Mosaico.init(options, plugins);
