@@ -30,10 +30,18 @@ app.post('/save', wrap(async (req, res) => {
 }));
 
 app.get('/list', wrap(async (req, res) => {
-  var mails = await Promise.all(
+  var mails = (await Promise.all(
     (await redis.lrangeAsync(`mosaico:${req.user}:emails`, 0, 100))
     .map(async (id) => {
-      var data = JSON.parse(await fs.readFile(path.join('./emails', `${id}.json`)));
+      try {
+        var data = JSON.parse(await fs.readFile(path.join('./emails', `${id}.json`)));
+      } catch (e) {
+        if (e.code === 'ENOENT') {
+          await redis.lremAsync(`mosaico:${res.user}:emails`, 0, id);
+        }
+
+        return;
+      }
 
       return {
         view: '/emails/' + id + '.html',
@@ -43,7 +51,8 @@ app.get('/list', wrap(async (req, res) => {
         created: data.metadata.created
       };
     })
-  );
+  ))
+  .filter(mail => (typeof mail !== 'undefined'));
 
   var templates = (await fs.readdir('./templates/dist'))
     .map(name => ({name: name, url: `/new?template=/templates/dist/${name}/template-${name}.html`}))
