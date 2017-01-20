@@ -26,7 +26,7 @@
         }
 
         var base = window.location.protocol + '//' + window.location.host;
-        var uuid = (location.hash && location.hash.indexOf('#edit') === 0) ? location.hash.split('/')[1] : false;
+        var uuid = (location.hash && location.hash.indexOf('#edit') === 0) ? location.hash.split('/')[1] : undefined;
         var plugins = [function(vm) {
           // Logo path
           vm.logoPath = '/mosaico/img/mosaico32.png';
