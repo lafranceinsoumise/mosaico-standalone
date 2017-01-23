@@ -1,3 +1,5 @@
 language: node_js
+before_install:
+  - "cp config.js.dist config.js"
 node_js:
   - "7"
