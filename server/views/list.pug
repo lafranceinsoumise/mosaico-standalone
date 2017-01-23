@@ -7,6 +7,7 @@ block one-column
       th Creation
       th View
       th Edit
+      th Delete
     each email in list
       tr
         td= email.name
@@ -15,6 +16,8 @@ block one-column
           a(href=email.view) View
         td
           a(href=email.edit) Edit
+        td
+          a(href=email.delete) Delete
 
   form.form-horizontal
     .form-group

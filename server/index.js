@@ -96,6 +96,10 @@ app.get('/edit/:id', (req, res) => {
   res.render('editor', {id: req.params.id});
 });
 
+app.get('/delete/:id', (req, res) => {
+  res.redirect('/storage/delete/' + req.params.id);
+});
+
 /**
  * /upload/
  * GET returns a JSON list of previously uploaded images

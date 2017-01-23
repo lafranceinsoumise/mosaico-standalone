@@ -46,6 +46,7 @@ app.get('/list', wrap(async (req, res) => {
       return {
         view: '/emails/' + id + '.html',
         edit: '/edit/' + id,
+        delete: '/delete/' + id,
         id: id,
         name: data.metadata.name,
         created: data.metadata.created
@@ -63,6 +64,11 @@ app.get('/list', wrap(async (req, res) => {
     );
 
   res.render('list', {list: mails, templates: templates});
+}));
+
+app.get('/delete/:id', wrap(async (req, res) => {
+  await redis.lremAsync(`mosaico:${req.user}:emails`, 0, req.params.id);
+  res.redirect('/');
 }));
 
 module.exports = app;
