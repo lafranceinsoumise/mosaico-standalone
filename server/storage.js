@@ -46,6 +46,7 @@ app.get('/list', wrap(async (req, res) => {
       return {
         view: '/emails/' + id + '.html',
         edit: '/edit/' + id,
+        delete: '/delete/' + id,
         id: id,
         name: data.metadata.name,
         created: data.metadata.created
@@ -63,6 +64,15 @@ app.get('/list', wrap(async (req, res) => {
     );
 
   res.render('list', {list: mails, templates: templates});
+}));
+
+/**
+ * Delete the mail in redis db
+ */
+app.post('/delete', wrap(async (req, res) => {
+  console.log(req.id);
+  await redis.lremAsync(`mosaico:${req.user}:emails`, 0, req.body.id);
+  res.redirect('/storage/list');
 }));
 
 module.exports = app;

@@ -97,6 +97,14 @@ app.get('/edit/:id', (req, res) => {
 });
 
 /**
+ * /delete
+ * GET delete request
+ */
+app.get('/delete/:id', (req, res) => {
+  res.render('delete', {id: req.params.id});
+});
+
+/**
  * /upload/
  * GET returns a JSON list of previously uploaded images
  * POST to upload images (using the jQuery-file-upload protocol)
