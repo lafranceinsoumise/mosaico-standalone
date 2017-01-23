@@ -37,7 +37,7 @@ app.get('/list', wrap(async (req, res) => {
         var data = JSON.parse(await fs.readFile(path.join('./emails', `${id}.json`)));
       } catch (e) {
         if (e.code === 'ENOENT') {
-          await redis.lremAsync(`mosaico:${res.user}:emails`, 0, id);
+          await redis.lremAsync(`mosaico:${req.user}:emails`, 0, id);
         }
 
         return;
