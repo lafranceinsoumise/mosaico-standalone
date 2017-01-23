@@ -31,7 +31,7 @@ app.post('/save', wrap(async (req, res) => {
 
 app.get('/list', wrap(async (req, res) => {
   var mails = (await Promise.all(
-    (await redis.lrangeAsync(`mosaico:${req.user}:emails`, 0, 100))
+    (await redis.lrangeAsync(`mosaico:${req.user}:emails`, -100, 100))
     .map(async (id) => {
       try {
         var data = JSON.parse(await fs.readFile(path.join('./emails', `${id}.json`)));
