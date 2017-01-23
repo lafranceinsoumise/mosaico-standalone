@@ -96,8 +96,12 @@ app.get('/edit/:id', (req, res) => {
   res.render('editor', {id: req.params.id});
 });
 
+/**
+ * /delete
+ * GET delete request
+ */
 app.get('/delete/:id', (req, res) => {
-  res.redirect('/storage/delete/' + req.params.id);
+  res.render('delete', {id: req.params.id});
 });
 
 /**
