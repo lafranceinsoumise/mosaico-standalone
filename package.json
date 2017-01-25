@@ -22,9 +22,9 @@
   "author": "Guillaume Royer <perso@guilro.com>",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/guilro/mosaico-standalone-composer/issues"
+    "url": "https://github.com/jlm2017/mosaico-standalone/issues"
   },
-  "homepage": "https://github.com/guilro/mosaico-standalone-composer#readme",
+  "homepage": "https://github.com/jlm2017/mosaico-standalone",
   "dependencies": {
     "bluebird": "^3.4.6",
     "body-parser": "^1.15.2",
