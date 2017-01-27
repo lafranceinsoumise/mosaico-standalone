@@ -15,10 +15,6 @@ cp config.js.dist config.js # edit this file
 npm start
 ```
 
-# Backend
-
-The backend is very basic, based on the development backend of Mosaico. It handles image uploads.
-
 # Changelog
 
 * 0.1.0 : Mosaico version 0.15.0
