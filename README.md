@@ -19,14 +19,6 @@ npm start
 
 The backend is very basic, based on the development backend of Mosaico. It handles image uploads.
 
-# Todo
-
-* test emails
-* download emails
-* authentication and user management
-* save emails on server
-* view emails in browser
-
 # Changelog
 
 * 0.1.0 : Mosaico version 0.15.0
