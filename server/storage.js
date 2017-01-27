@@ -29,9 +29,17 @@ app.post('/save', wrap(async (req, res) => {
   res.status(202).json({uuid: uuid});
 }));
 
-app.get('/list', wrap(async (req, res) => {
+app.get('/list/:index?', wrap(async (req, res) => {
+  var nList = await redis.llenAsync(`mosaico:${req.user}:emails`);
+  var nPage = Math.ceil(nList/10);
+  var index = (req.params.index || 1);
+  if (index == 0){index=1;}
+  if (index > nPage){index=nPage;}
+  var start = ((index-1)*10);
+  var end = start+9;
+
   var mails = (await Promise.all(
-    (await redis.lrangeAsync(`mosaico:${req.user}:emails`, 0, 100))
+    (await redis.lrangeAsync(`mosaico:${req.user}:emails`, start, end))
     .map(async (id) => {
       try {
         var data = JSON.parse(await fs.readFile(path.join('./emails', `${id}.json`)));
@@ -63,7 +71,7 @@ app.get('/list', wrap(async (req, res) => {
       .map(name => ({name: `${name} (Custom)`, url: `/new?template=/templates/custom/${name}/template-${name}.html`}))
     );
 
-  res.render('list', {list: mails, templates: templates});
+  res.render('list', {list: mails, templates: templates, index: parseInt(index), nPage: nPage});
 }));
 
 /**
