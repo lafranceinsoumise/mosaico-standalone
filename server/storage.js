@@ -10,7 +10,6 @@ bluebird.promisifyAll(Redis.RedisClient.prototype);
 bluebird.promisifyAll(Redis.Multi.prototype);
 const redis = Redis.createClient();
 const wrap = require('./utils/wrap');
-var request = bluebird.promisifyAll(require('request'));
 
 var app = express.Router();
 
@@ -91,8 +90,8 @@ app.post('/duplicate', wrap(async (req, res) => {
   var content_html = await fs.readFile(path.join('./emails/', req.body.id+'.html'), {encoding: 'utf-8'});
   var content_json = await fs.readFile(path.join('./emails/', req.body.id+'.json'), {encoding: 'utf-8'});
 
-  var metadata = JSON.parse(content_json).metadata
-  metadata.name = req.body.email_name //new name
+  var metadata = JSON.parse(content_json).metadata;
+  metadata.name = req.body.email_name; //new name
 
   var uuid = (req.body.uuid || newUuid());
   await req.body.uuid || redis.lpushAsync(`mosaico:${req.user}:emails`, uuid);
