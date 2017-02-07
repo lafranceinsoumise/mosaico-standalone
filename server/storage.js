@@ -10,6 +10,7 @@ bluebird.promisifyAll(Redis.RedisClient.prototype);
 bluebird.promisifyAll(Redis.Multi.prototype);
 const redis = Redis.createClient();
 const wrap = require('./utils/wrap');
+var request = bluebird.promisifyAll(require('request'));
 
 var app = express.Router();
 
@@ -55,6 +56,7 @@ app.get('/list/:index?', wrap(async (req, res) => {
         view: '/emails/' + id + '.html',
         edit: '/edit/' + id,
         delete: '/delete/' + id,
+        duplicate: '/duplicate?email_id=' + id +'&name=' + data.metadata.name ,
         id: id,
         name: data.metadata.name,
         created: data.metadata.created
@@ -79,6 +81,27 @@ app.get('/list/:index?', wrap(async (req, res) => {
  */
 app.post('/delete', wrap(async (req, res) => {
   await redis.lremAsync(`mosaico:${req.user}:emails`, 0, req.body.id);
+  res.redirect('/storage/list');
+}));
+
+/**
+ * Duplicate the mail in redis db
+ */
+app.post('/duplicate', wrap(async (req, res) => {
+  var content_html = await fs.readFile(path.join('./emails/', req.body.id+'.html'), {encoding: 'utf-8'});
+  var content_json = await fs.readFile(path.join('./emails/', req.body.id+'.json'), {encoding: 'utf-8'});
+
+  var metadata = JSON.parse(content_json).metadata
+  metadata.name = req.body.email_name //new name
+
+  var uuid = (req.body.uuid || newUuid());
+  await req.body.uuid || redis.lpushAsync(`mosaico:${req.user}:emails`, uuid);
+  await fs.writeFile(`./emails/${uuid}.html`, content_html);
+  await fs.writeFile(`./emails/${uuid}.json`, JSON.stringify({
+    metadata: metadata,
+    content: JSON.parse(content_json).content
+  }));
+
   res.redirect('/storage/list');
 }));
 
