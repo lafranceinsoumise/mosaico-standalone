@@ -87,15 +87,14 @@ app.post('/delete', wrap(async (req, res) => {
  * Duplicate the mail in redis db
  */
 app.post('/duplicate', wrap(async (req, res) => {
-  var content_html = await fs.readFile(path.join('./emails/', req.body.id+'.html'), {encoding: 'utf-8'});
   var content_json = await fs.readFile(path.join('./emails/', req.body.id+'.json'), {encoding: 'utf-8'});
 
   var metadata = JSON.parse(content_json).metadata;
   metadata.name = req.body.email_name; //new name
 
-  var uuid = (req.body.uuid || newUuid());
-  await req.body.uuid || redis.lpushAsync(`mosaico:${req.user}:emails`, uuid);
-  await fs.writeFile(`./emails/${uuid}.html`, content_html);
+  var uuid = newUuid();
+  await redis.lpushAsync(`mosaico:${req.user}:emails`, uuid);
+  await fs.writeFile(`./emails/${uuid}.html`, fs.readFile(path.join('./emails/', req.body.id+'.html'), {encoding: 'utf-8'}));
   await fs.writeFile(`./emails/${uuid}.json`, JSON.stringify({
     metadata: metadata,
     content: JSON.parse(content_json).content
