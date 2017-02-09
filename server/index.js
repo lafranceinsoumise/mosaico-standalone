@@ -105,6 +105,14 @@ app.get('/delete/:id', (req, res) => {
 });
 
 /**
+ * /duplicate
+ * GET delete request
+ */
+app.get('/duplicate', (req, res) => {
+  res.render('duplicate', {id: req.query.email_id, name:req.query.name});
+});
+
+/**
  * /upload/
  * GET returns a JSON list of previously uploaded images
  * POST to upload images (using the jQuery-file-upload protocol)

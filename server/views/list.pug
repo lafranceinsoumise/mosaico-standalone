@@ -26,6 +26,7 @@ block one-column
       th Creation
       th View
       th Edit
+      th Duplicate
       th Delete
     each email in list
       tr
@@ -35,6 +36,8 @@ block one-column
           a(href=email.view) View
         td
           a(href=email.edit) Edit
+        td
+          a(href=email.duplicate) Duplicate
         td
           a(href=email.delete) Delete
 
