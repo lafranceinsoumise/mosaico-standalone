@@ -94,7 +94,7 @@ app.post('/duplicate', wrap(async (req, res) => {
 
   var uuid = newUuid();
   await redis.lpushAsync(`mosaico:${req.user}:emails`, uuid);
-  await fs.writeFile(`./emails/${uuid}.html`, fs.readFile(path.join('./emails/', req.body.id+'.html'), {encoding: 'utf-8'}));
+  await fs.createReadStream(`./emails/${req.body.id}.html`).pipe(fs.createWriteStream(`./emails/${uuid}.html`));
   await fs.writeFile(`./emails/${uuid}.json`, JSON.stringify({
     metadata: metadata,
     content: JSON.parse(content_json).content
