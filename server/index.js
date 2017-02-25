@@ -7,6 +7,7 @@ const moment = require('moment');
 const morgan = require('morgan');
 const path = require('path');
 const session = require('express-session');
+const sanitizeHtml = require('sanitize-html');
 
 var app = express();
 const config = require('../config');
@@ -18,7 +19,6 @@ const RedisStore = require('connect-redis')(session);
 app.use('/mosaico', express.static('./mosaico'));
 app.use('/templates', express.static('./templates'));
 app.use('/uploads', express.static('./uploads'));
-app.use('/emails', express.static('./emails'));
 
 // Config
 app.enable('trust proxy');
@@ -33,12 +33,11 @@ app.use(bodyParser.urlencoded({
 }));
 
 // Public routes
-
-app.post('/emails/:file', wrap(async (req, res) => {
+app.all('/emails/:file', wrap(async (req, res) => {
   var content = await fs.readFile(path.join('./emails/', req.params.file), {encoding: 'utf-8'});
 
-  for (var elem in req.body) {
-    content = content.replace(`[${elem}]`, req.body[elem]);
+  for (var elem in (req.method === 'GET' ? req.query : req.body)) {
+    content = content.replace(`[${elem}]`, sanitizeHtml((req.method === 'GET' ? req.query : req.body)[elem]));
   }
 
   return res.send(content);
