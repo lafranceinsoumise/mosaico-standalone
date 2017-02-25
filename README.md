@@ -39,4 +39,9 @@ You can use this feature from other services to use Mosaico as an email template
 
 # Changelog
 
+* 0.2.0 :
+    * security fixes (XSS injection)
+    * allow all methods for merge tags
+    * add pagination, duplicate and delete feature
+    * BREAKING: require node>=7.6.0
 * 0.1.0 : Mosaico version 0.15.0
