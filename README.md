@@ -4,7 +4,7 @@ This project aims at providing an environment for using [Mosaico](https://mosaic
 
 # Install and run
 
-You need NodeJS 7, Imagemagick and a local Redis server to make it run. The local Redis server can be launch
+You need NodeJS >= 7.6, Imagemagick and a local Redis server to make it run. The local Redis server can be launch
 using the docker-compose file provided at the root of this project.
 
 ```bash
