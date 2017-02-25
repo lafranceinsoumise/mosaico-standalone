@@ -4,7 +4,9 @@
   "private": true,
   "description": "Standalone email composer integrating Mosaico.",
   "main": "index.js",
-  "engines" : { "node" : ">=7.6.0" },
+  "engines": {
+    "node": ">=7.6.0"
+  },
   "scripts": {
     "start": "node index.js",
     "test": "eslint . && NODE_ENV=test mocha"
