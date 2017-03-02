@@ -37,7 +37,7 @@ app.all('/emails/:file', wrap(async (req, res) => {
   var content = await fs.readFile(path.join('./emails/', req.params.file), {encoding: 'utf-8'});
 
   for (var elem in (req.method === 'GET' ? req.query : req.body)) {
-    content = content.replace(`[${elem}]`, sanitizeHtml((req.method === 'GET' ? req.query : req.body)[elem]));
+    content = content.replace(new RegExp(`\\[${elem}\\]`, 'g'), sanitizeHtml((req.method === 'GET' ? req.query : req.body)[elem]));
   }
 
   return res.send(content);
