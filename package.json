@@ -46,7 +46,8 @@
     "redis": "^2.6.3",
     "request": "^2.79.0",
     "sanitize-html": "^1.14.1",
-    "uuid": "^3.0.1"
+    "uuid": "^3.0.1",
+    "validator": "^7.0.0"
   },
   "devDependencies": {
     "eslint": "^3.10.2",

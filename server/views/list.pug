@@ -28,6 +28,8 @@ block one-column
       th Edit
       th Duplicate
       th Delete
+      th Send
+      th Summary
     each email in list
       tr
         td= email.name
@@ -40,6 +42,8 @@ block one-column
           a(href=email.duplicate) Duplicate
         td
           a(href=email.delete) Delete
+        td
+          a(href=email.send) Send
 
   form.form-horizontal
     .form-group

@@ -58,7 +58,8 @@ app.get('/list/:index?', wrap(async (req, res) => {
         duplicate: '/duplicate?email_id=' + id +'&name=' + data.metadata.name ,
         id: id,
         name: data.metadata.name,
-        created: data.metadata.created
+        created: data.metadata.created,
+        send: '/send/' + id
       };
     })
   ))
