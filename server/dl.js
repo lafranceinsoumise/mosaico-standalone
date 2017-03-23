@@ -4,6 +4,7 @@ const nodemailer = require('nodemailer');
 const config = require('../config');
 
 var mailer = nodemailer.createTransport(config.emailTransport);
+mailer.use('compile', htmlToText());
 
 module.exports = (req, res, next) => {
   var source = req.body.html;
