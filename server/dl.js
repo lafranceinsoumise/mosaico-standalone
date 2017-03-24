@@ -1,5 +1,6 @@
 'use strict';
 
+const htmlToText = require('nodemailer-html-to-text').htmlToText;
 const nodemailer = require('nodemailer');
 const config = require('../config');
 
