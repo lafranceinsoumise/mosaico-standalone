@@ -8,6 +8,10 @@ module.exports = {
   emailOptions: {
     from: 'Your Name Here <example@example.com>'
   },
+  sendDefautls: {
+    fromAddress: 'nepasrepondre@jlm2017.fr',
+    fromName: 'JLM 2017'
+  },
   users: [
     {
       username: 'admin',

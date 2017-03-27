@@ -122,13 +122,21 @@ app.get('/delete/:id', (req, res) => {
 app.get('/send/:id', wrap(async (req, res) => {
   try {
     await fs.access(path.join('./emails/', req.params.id + '.html'));
+    var logFile;
+
     try {
       await fs.access(path.join('./logs/' + req.params.id + '.csv'));
-
-      res.render('send', {id: req.params.id, logFile: true});
+      logFile = true;
     } catch (e) {
-      res.render('send', {id: req.params.id});
+      logFile = false;
     }
+
+    res.render('send', {
+      id: req.params.id,
+      fromName: config.sendDefaults && config.sendDefaults.fromName,
+      fromAddress: config.sendDefaults && config.sendDefaults.fromAddress,
+      logFile
+    });
   } catch (e) {
     res.sendStatus(404);
   }
