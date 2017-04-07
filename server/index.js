@@ -1,5 +1,6 @@
 'use strict';
 
+const bluebird = require('bluebird');
 const bodyParser = require('body-parser');
 const express = require('express');
 const fs = require('mz/fs');
@@ -185,8 +186,6 @@ app.post('/send/:id', wrap(async (req, res) => {
     encoding: 'utf-8'
   });
 
-  var sendErrors = [];
-  var sendSuccesses = [];
 
   var content = await fs.readFile(path.join('./emails/', req.params.id + '.html'), {encoding: 'utf-8'});
 
@@ -198,12 +197,18 @@ app.post('/send/:id', wrap(async (req, res) => {
 
   var hasPlaceholders = content.includes('[EMAIL]');
 
+  res.redirect(`/send/${req.params.id}/summary`);
+
+  req.session.sendSummary = {errors: [], successes: []};
+
+  const saveSession = bluebird.promisify(req.session.save, {context: req.session});
+
   for (var i = 0; i< recipients.length; i++) {
     var currentRecipient = recipients[i];
 
     if (!validator.isEmail(currentRecipient)) {
       logFile.write(`${new Date()};${currentRecipient};error;Error: Invalid address\n`);
-      sendErrors.push({email: currentRecipient, message: 'Invalid address.'});
+      req.session.sendSummary.errors.push({email: currentRecipient, message: 'Invalid address.'});
       continue;
     }
 
@@ -214,42 +219,37 @@ app.post('/send/:id', wrap(async (req, res) => {
       mailer.sendMail(mailOptions, (err) => {
         if (err) {
           logFile.write(`${new Date()};${currentRecipient};error;Error: ${err.message}\n`);
-          sendErrors.push({email: currentRecipient, message: err.message});
+          req.session.sendSummary.errors.push({email: currentRecipient, message: err.message});
 
           return resolve();
         }
 
         logFile.write(`${new Date()};${currentRecipient};success;Email sent\n`);
-        sendSuccesses.push(currentRecipient);
+        req.session.sendSummary.successes.push(currentRecipient);
 
         return resolve();
       });
     });
+    await saveSession();
   }
-
-  req.session.sendSummary = {};
-  req.session.sendSummary.errors = sendErrors;
-  req.session.sendSummary.successes = sendSuccesses;
-
-  return res.redirect(`/send/${req.params.id}/summary`);
+  return ;
 }));
 
+app.get('/refresh_current_summary', (req, res) => {
+  res.render('currentSummary', {successes: req.session.sendSummary.successes, errors: req.session.sendSummary.errors});
+});
+
 app.get('/send/:id/summary', wrap(async (req, res) => {
-  if (!req.session.sendSummary) {
-    return res.redirect(`/send/${req.params.id}`);
+  try {
+    var sourceJSON = await fs.readFile(path.join('./emails/', req.params.id + '.json'), {encoding: 'utf-8'});
+  } catch (e) {
+    return res.redirect('/');
   }
-
-  var sendSummary = req.session.sendSummary;
-  delete req.session.sendSummary;
-
-  var sourceJSON = await fs.readFile(path.join('./emails/', req.params.id + '.json'), {encoding: 'utf-8'});
   var mailName = JSON.parse(sourceJSON).metadata.name;
 
   return res.render('sendSummary', {
     id: req.params.id,
     name: mailName,
-    successes: sendSummary.successes,
-    errors: sendSummary.errors
   });
 }));
 

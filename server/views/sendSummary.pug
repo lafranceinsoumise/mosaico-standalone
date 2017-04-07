@@ -6,22 +6,4 @@ block content
     .row
       .col-xs-12.col-sm-8.col-sm-offset-2.col-md-6.col-md-offset-3.col-lg-4.col-lg-offset-4
         a.btn.btn-primary.btn-block(href=`/send/${id}/export` target="_blank") Export to CSV
-    if successes && successes.length > 0
-      .row.margin-bottom
-        h3 Your mail has been sent to :
-        table.table
-          each mail in successes
-            tr
-              td= mail
-      hr
-    if errors && errors.length > 0
-      .row.margin-bottom
-        h3 Errors :
-        table.table
-          tr
-            th Email
-            th Error
-          each error in errors
-            tr
-              td= error.email
-              td= error.message
+    div(ic-src="/refresh_current_summary" ic-poll="2s")

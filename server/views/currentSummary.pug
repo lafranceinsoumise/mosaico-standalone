@@ -1,0 +1,19 @@
+if successes && successes.length > 0
+  .row.margin-bottom
+    h3 Your mail has been sent to :
+    table.table
+      each mail in successes
+        tr
+          td= mail
+  hr
+if errors && errors.length > 0
+  .row.margin-bottom
+    h3 Errors :
+    table.table
+      tr
+        th Email
+        th Error
+      each error in errors
+        tr
+          td= error.email
+          td= error.message

@@ -30,6 +30,8 @@ app.post('/save', wrap(async (req, res) => {
 }));
 
 app.get('/list/:index?', wrap(async (req, res) => {
+
+  delete req.session.sendSummary;
   var nList = await redis.llenAsync(`mosaico:${req.user}:emails`);
   var nPage = Math.ceil(nList/10);
   var index = (req.params.index || 1);
