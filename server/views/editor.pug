@@ -2,3 +2,12 @@ extends layout
 
 block content
   iframe(id="editor" src='/mosaico#' + (id ? 'edit/' + id : template),frameborder="no")
+  script.
+    window.onload = function() {
+    window.addEventListener("beforeunload", function (e) {
+      var confirmationMessage = 'Are you sure you want to leave the page?';
+
+        (e || window.event).returnValue = confirmationMessage; //Gecko + IE
+        return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
+      });
+    };
