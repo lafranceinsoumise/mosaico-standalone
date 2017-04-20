@@ -1,4 +1,9 @@
 extends layout
 
 block content
+  script(src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous")
   iframe(id="editor" src='/mosaico#' + (id ? 'edit/' + id : template),frameborder="no")
+  script.
+    $(window).bind('beforeunload', function(){
+      return 'Are you sure you want to leave?';
+    });
