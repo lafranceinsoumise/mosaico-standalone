@@ -68,12 +68,7 @@ app.get('/list/:index?', wrap(async (req, res) => {
 
   var templates = config.users
     .filter(user => user.username == req.user)[0].templates
-    .map(name => ({name: name, url: `/new?template=/templates/dist/${name}/template-${name}.html`}))
-    .concat(
-      (await fs.readdir('./templates/custom'))
-      .filter(name => (name !== '.gitkeep'))
-      .map(name => ({name: `${name} (Custom)`, url: `/new?template=/templates/custom/${name}/template-${name}.html`}))
-    );
+    .map(name => ({name: `${name} (Custom)`, url: `/new?template=/templates/custom/${name}/template-${name}.html`}));
 
   res.render('list', {list: mails, templates: templates, index: parseInt(index), nPage: nPage});
 }));
