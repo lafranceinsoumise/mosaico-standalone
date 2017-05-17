@@ -10,6 +10,7 @@ bluebird.promisifyAll(Redis.RedisClient.prototype);
 bluebird.promisifyAll(Redis.Multi.prototype);
 const redis = Redis.createClient();
 const wrap = require('./utils/wrap');
+const config = require('../config');
 
 var app = express.Router();
 
@@ -65,7 +66,8 @@ app.get('/list/:index?', wrap(async (req, res) => {
   ))
   .filter(mail => (typeof mail !== 'undefined'));
 
-  var templates = (await fs.readdir('./templates/dist'))
+  var templates = config.users
+    .filter(user => user.username == req.user)[0].templates
     .map(name => ({name: name, url: `/new?template=/templates/dist/${name}/template-${name}.html`}))
     .concat(
       (await fs.readdir('./templates/custom'))
