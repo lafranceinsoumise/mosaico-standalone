@@ -68,7 +68,7 @@ app.get('/list/:index?', wrap(async (req, res) => {
 
   var templates = config.users
     .filter(user => user.username == req.user)[0].templates
-    .map(name => ({name: `${name} (Custom)`, url: `/new?template=/templates/custom/${name}/template-${name}.html`}));
+    .map(name => ({name: `${name} (Custom)`, url: `/new?template=/templates/custom/${name}/template.html`}));
 
   res.render('list', {list: mails, templates: templates, index: parseInt(index), nPage: nPage});
 }));

@@ -23,6 +23,22 @@ mailer.use('compile', htmlToText());
 
 // Static files
 app.use('/mosaico', express.static('./mosaico'));
+app.use('/templates', (req, res, next) => {
+  let reg = req.url.match(/\/(custom|dist)\/(.*)\/template.html/);
+  if (!reg) return next();
+
+  let [,folder, name] = reg;
+  console.log(folder, name);
+
+  fs.stat(path.join('./templates', req.url), (err) => {
+    if (err && err.code === 'ENOENT') {
+      req.url = `/${folder}/${name}/template-${name}.html`;
+      console.log(req.url);
+      next();
+    }
+  });
+});
+
 app.use('/templates', express.static('./templates'));
 app.use('/uploads', express.static('./uploads'));
 
