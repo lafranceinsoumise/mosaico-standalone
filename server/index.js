@@ -33,8 +33,9 @@ app.use('/templates', (req, res, next) => {
   fs.stat(path.join('./templates', req.url), (err) => {
     if (err && err.code === 'ENOENT') {
       req.url = `/${folder}/${name}/template-${name}.html`;
-      return next();
     }
+
+    return next();
   });
 });
 
