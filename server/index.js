@@ -62,7 +62,15 @@ function isEmpty(obj) {
 
 // Public routes
 app.all('/emails/:file', wrap(async (req, res) => {
-  var content = await fs.readFile(path.join('./emails/', req.params.file), {encoding: 'utf-8'});
+  try {
+    var content = await fs.readFile(path.join('./emails/', req.params.file), {encoding: 'utf-8'});
+  } catch (e) {
+    if (e.code === 'ENOENT') {
+      return res.sendStatus(404);
+    }
+
+    return res.sendStatus(500);
+  }
 
   for (var elem in (req.method === 'GET' ? req.query : req.body)) {
     content = content.replace(new RegExp(`\\[${elem}\\]`, 'g'), sanitizeHtml((req.method === 'GET' ? req.query : req.body)[elem]));
