@@ -11,6 +11,7 @@ bluebird.promisifyAll(Redis.Multi.prototype);
 const redis = Redis.createClient();
 const wrap = require('./utils/wrap');
 const config = require('../config');
+const distTemplates = require('fs').readdirSync('./templates/dist');
 
 var app = express.Router();
 
@@ -40,35 +41,39 @@ app.get('/list/:index?', wrap(async (req, res) => {
   var end = start+9;
 
   var mails = (await Promise.all(
-    (await redis.lrangeAsync(`mosaico:${req.user}:emails`, start, end))
-    .map(async (id) => {
-      try {
-        var data = JSON.parse(await fs.readFile(path.join('./emails', `${id}.json`)));
-      } catch (e) {
-        if (e.code === 'ENOENT') {
-          await redis.lremAsync(`mosaico:${req.user}:emails`, 0, id);
+    await redis
+      .lrangeAsync(`mosaico:${req.user}:emails`, start, end)
+      .map(async (id) => {
+        try {
+          var data = JSON.parse(await fs.readFile(path.join('./emails', `${id}.json`)));
+        } catch (e) {
+          if (e.code === 'ENOENT') {
+            await redis.lremAsync(`mosaico:${req.user}:emails`, 0, id);
+          }
+
+          return;
         }
 
-        return;
-      }
-
-      return {
-        view: '/emails/' + id + '.html',
-        edit: '/edit/' + id,
-        delete: '/delete/' + id,
-        duplicate: '/duplicate?email_id=' + id +'&name=' + data.metadata.name ,
-        id: id,
-        name: data.metadata.name,
-        created: data.metadata.created,
-        send: '/send/' + id
-      };
-    })
-  ))
-  .filter(mail => (typeof mail !== 'undefined'));
+        return {
+          view: '/emails/' + id + '.html',
+          edit: '/edit/' + id,
+          delete: '/delete/' + id,
+          duplicate: '/duplicate?email_id=' + id +'&name=' + data.metadata.name ,
+          id: id,
+          name: data.metadata.name,
+          created: data.metadata.created,
+          send: '/send/' + id
+        };
+      })
+  )).filter(mail => (typeof mail !== 'undefined'));
 
   var templates = config.users
     .filter(user => user.username == req.user)[0].templates
     .map(name => ({name: `${name} (Custom)`, url: `/new?template=/templates/custom/${name}/template.html`}));
+
+  templates = templates.concat(
+    distTemplates.map(name => ({name: `${name} (Dist)`, url: `/new?template=/templates/dist/${name}/template.html`}))
+  );
 
   res.render('list', {list: mails, templates: templates, index: parseInt(index), nPage: nPage});
 }));

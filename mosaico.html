@@ -4,20 +4,12 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=1024, initial-scale=1">
 
-    <script src="/mosaico/vendor/jquery.min.js"></script>
-    <script src="/mosaico/vendor/knockout.js"></script>
-    <script src="/mosaico/vendor/jquery-ui.min.js"></script>
-    <script src="/mosaico/vendor/jquery.ui.touch-punch.min.js"></script>
-    <script src="/mosaico/vendor/load-image.all.min.js"></script>
-    <script src="/mosaico/vendor/canvas-to-blob.min.js"></script>
-    <script src="/mosaico/vendor/jquery.iframe-transport.js"></script>
-    <script src="/mosaico/vendor/jquery.fileupload.js"></script>
-    <script src="/mosaico/vendor/jquery.fileupload-process.js"></script>
-    <script src="/mosaico/vendor/jquery.fileupload-image.js"></script>
-    <script src="/mosaico/vendor/jquery.fileupload-validate.js"></script>
-    <script src="/mosaico/vendor/knockout-jqueryui.min.js"></script>
-    <script src="/mosaico/vendor/tinymce.min.js"></script>
-    <script src="/mosaico/mosaico.min.js?v=0.15"></script>
+    <link rel="canonical" href="http://mosaico.io" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+
+    <script src="/mosaico/mosaico-libs.min.js?v=0.17.3"></script>
+    <script src="/mosaico/mosaico.min.js?v=0.17.3"></script>
     <script>
       $(function() {
         if (!Mosaico.isCompatible()) {
@@ -121,7 +113,7 @@
 
         if (uuid) {
           $.get('/emails/' + uuid + '.json', null, function(data) {
-            options.data = JSON.stringify(data);
+            options.data = data;
 
             Mosaico.init(options, plugins);
           }, 'json');
@@ -130,8 +122,8 @@
         }
       });
     </script>
-    <link rel="stylesheet" href="/mosaico/mosaico-material.min.css?v=0.10" />
-    <link rel="stylesheet" href="/mosaico/vendor/notoregular/stylesheet.css" />
+    <link rel="stylesheet" href="/mosaico/mosaico-libs.min.css?v=0.17.3" />
+    <link rel="stylesheet" href="/mosaico/mosaico-material.min.css?v=0.17.3" />
   </head>
   <body class="mo-standalone"></body>
 </html>
