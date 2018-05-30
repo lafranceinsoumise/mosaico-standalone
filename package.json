@@ -29,29 +29,29 @@
   "homepage": "https://github.com/jlm2017/mosaico-standalone",
   "dependencies": {
     "bluebird": "^3.5.1",
-    "body-parser": "^1.18.2",
+    "body-parser": "^1.18.3",
     "connect-redis": "^3.3.3",
-    "express": "^4.16.2",
+    "express": "^4.16.3",
     "express-session": "^1.15.6",
     "gm": "^1.23.1",
     "jquery-file-upload-middleware": "^0.1.8",
-    "moment": "^2.20.1",
+    "moment": "^2.22.1",
     "morgan": "^1.9.0",
     "mz": "^2.7.0",
-    "nodemailer": "^2.7.2",
+    "nodemailer": "^4.6.5",
     "nodemailer-html-to-text": "^2.1.0",
-    "passport": "^0.3.2",
+    "passport": "^0.4.0",
     "passport-local": "^1.0.0",
-    "pug": "^2.0.0-rc.4",
+    "pug": "^2.0.3",
     "redis": "^2.8.0",
-    "request": "^2.83.0",
-    "sanitize-html": "^1.17.0",
+    "request": "^2.87.0",
+    "sanitize-html": "^1.18.2",
     "uuid": "^3.2.1",
-    "validator": "^7.2.0"
+    "validator": "^10.2.0"
   },
   "devDependencies": {
-    "eslint": "^3.19.0",
-    "mocha": "^3.5.3",
-    "supertest": "^2.0.1"
+    "eslint": "^4.0.0",
+    "mocha": "^5.2.0",
+    "supertest": "^3.1.0"
   }
 }
