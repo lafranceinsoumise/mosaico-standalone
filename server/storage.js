@@ -33,7 +33,7 @@ app.post('/save', wrap(async (req, res) => {
 
 app.get('/list/:index?', wrap(async (req, res) => {
   let db = await dbPromise;
-  let nList = await db.get('SELECT COUNT(uuid) FROM emails');
+  let {nList} = await db.get('SELECT COUNT(uuid) as nList FROM emails');
   let nPage = Math.ceil(nList/10);
   let index = (Number(req.params.index) || 1);
   let start = ((index-1)*10);
