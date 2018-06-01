@@ -52,3 +52,5 @@ config.js
 uploads
 emails
 templates/custom
+
+database.sqlite

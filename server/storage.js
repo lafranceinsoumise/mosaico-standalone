@@ -1,71 +1,60 @@
 'use strict';
 
-const bluebird = require('bluebird');
 const express = require('express');
-const fs = require('mz/fs');
 const newUuid = require('uuid/v4');
-const path = require('path');
-const Redis = require('redis');
-bluebird.promisifyAll(Redis.RedisClient.prototype);
-bluebird.promisifyAll(Redis.Multi.prototype);
-const redis = Redis.createClient();
 const wrap = require('./utils/wrap');
+const dbPromise = require('./utils/db');
 const config = require('../config');
 const distTemplates = require('fs').readdirSync('./templates/dist');
 
 var app = express.Router();
 
 app.post('/save', wrap(async (req, res) => {
-  var source = req.body.html;
+  let db = await dbPromise;
+  let html = req.body.html;
 
-  if (!source) throw new Error('No content.');
+  if (!html) throw new Error('No content.');
 
-  var uuid = (req.body.uuid || newUuid());
-  await req.body.uuid || redis.lpushAsync(`mosaico:${req.user}:emails`, uuid);
-  await fs.writeFile(`./emails/${uuid}.html`, source);
-  await fs.writeFile(`./emails/${uuid}.json`, JSON.stringify({
-    metadata: JSON.parse(req.body.metadata),
-    content: JSON.parse(req.body.content)
-  }));
+  let uuid = (req.body.uuid || newUuid());
+
+  JSON.parse(req.body.metadata);
+  JSON.parse(req.body.content);
+
+  await db.run('INSERT OR REPLACE INTO emails(uuid, user, metadata, content, html) VALUES(?, ?, ?, ?, ?)', [
+    uuid,
+    req.user,
+    req.body.metadata,
+    req.body.content,
+    html
+  ]);
 
   res.status(202).json({uuid: uuid});
 }));
 
 app.get('/list/:index?', wrap(async (req, res) => {
-  var nList = await redis.llenAsync(`mosaico:${req.user}:emails`);
-  var nPage = Math.ceil(nList/10);
-  var index = (req.params.index || 1);
-  if (index == 0){index=1;}
-  if (index > nPage){index=nPage;}
-  var start = ((index-1)*10);
-  var end = start+9;
+  let db = await dbPromise;
+  let nList = await db.get('SELECT COUNT(uuid) FROM emails');
+  let nPage = Math.ceil(nList/10);
+  let index = (Number(req.params.index) || 1);
+  let start = ((index-1)*10);
 
-  var mails = (await Promise.all(
-    await redis
-      .lrangeAsync(`mosaico:${req.user}:emails`, start, end)
-      .map(async (id) => {
-        try {
-          var data = JSON.parse(await fs.readFile(path.join('./emails', `${id}.json`)));
-        } catch (e) {
-          if (e.code === 'ENOENT') {
-            await redis.lremAsync(`mosaico:${req.user}:emails`, 0, id);
-          }
+  let mails = (await db.all('SELECT * FROM emails WHERE user = ? ORDER BY rowid DESC LIMIT ?, 10', [
+    req.user,
+    start
+  ])).map(email => {
+    let metadata = JSON.parse(email.metadata);
 
-          return;
-        }
-
-        return {
-          view: '/emails/' + id + '.html',
-          edit: '/edit/' + id,
-          delete: '/delete/' + id,
-          duplicate: '/duplicate?email_id=' + id +'&name=' + data.metadata.name ,
-          id: id,
-          name: data.metadata.name,
-          created: data.metadata.created,
-          send: '/send/' + id
-        };
-      })
-  )).filter(mail => (typeof mail !== 'undefined'));
+    return {
+      view: '/emails/' + email.uuid + '.html',
+      edit: '/edit/' + email.uuid,
+      delete: '/delete/' + email.uuid,
+      duplicate: '/duplicate?email_id=' + email.uuid +'&name=' + metadata.name ,
+      id: email.uuid,
+      name: metadata.name,
+      created: metadata.created,
+      send: '/send/' + email.uuid
+    };
+  });
 
   var templates = config.users
     .filter(user => user.username == req.user)[0].templates
@@ -82,7 +71,9 @@ app.get('/list/:index?', wrap(async (req, res) => {
  * Delete the mail in redis db
  */
 app.post('/delete', wrap(async (req, res) => {
-  await redis.lremAsync(`mosaico:${req.user}:emails`, 0, req.body.id);
+  let db = await dbPromise;
+  await db.run('DELETE FROM emails WHERE uuid = ?', [req.body.id]);
+
   res.redirect('/storage/list');
 }));
 
@@ -90,18 +81,21 @@ app.post('/delete', wrap(async (req, res) => {
  * Duplicate the mail in redis db
  */
 app.post('/duplicate', wrap(async (req, res) => {
-  var content_json = await fs.readFile(path.join('./emails/', req.body.id+'.json'), {encoding: 'utf-8'});
+  let db = await dbPromise;
+  let email = await db.get('SELECT * FROM emails WHERE uuid = ?', [req.body.id]);
 
-  var metadata = JSON.parse(content_json).metadata;
-  metadata.name = req.body.email_name; //new name
-
-  var uuid = newUuid();
-  await redis.lpushAsync(`mosaico:${req.user}:emails`, uuid);
-  await fs.createReadStream(`./emails/${req.body.id}.html`).pipe(fs.createWriteStream(`./emails/${uuid}.html`));
-  await fs.writeFile(`./emails/${uuid}.json`, JSON.stringify({
-    metadata: metadata,
-    content: JSON.parse(content_json).content
+  email.uuid = newUuid();
+  email.metadata = JSON.stringify(Object.assign(JSON.parse(email.metadata), {
+    name: req.body.email_name,
+    created : Math.round(Date.now())
   }));
+
+  await db.run('INSERT OR REPLACE INTO emails(uuid, metadata, content, html) VALUES(?, ?, ?, ?)', [
+    email.uuid,
+    email.metadata,
+    email.content,
+    email.html
+  ]);
 
   res.redirect('/storage/list');
 }));

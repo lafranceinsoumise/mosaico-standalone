@@ -3,3 +3,4 @@ uploads
 emails
 logs
 .tmp
+database.sqlite*

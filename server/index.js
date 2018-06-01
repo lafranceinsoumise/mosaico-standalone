@@ -17,6 +17,7 @@ const config = require('../config');
 const wrap = require('./utils/wrap');
 const passport = require('./authentication');
 const RedisStore = require('connect-redis')(session);
+const dbPromise = require('./utils/db');
 var mailer = nodemailer.createTransport(config.emailTransport);
 
 mailer.use('compile', htmlToText());
@@ -61,22 +62,21 @@ function isEmpty(obj) {
 }
 
 // Public routes
-app.all('/emails/:file', wrap(async (req, res) => {
-  try {
-    var content = await fs.readFile(path.join('./emails/', req.params.file), {encoding: 'utf-8'});
-  } catch (e) {
-    if (e.code === 'ENOENT') {
-      return res.sendStatus(404);
-    }
+app.all(/^\/emails\/[A-F\d]{8}-[A-F\d]{4}-4[A-F\d]{3}-[89AB][A-F\d]{3}-[A-F\d]{12}\.(json|html)$/i, wrap(async (req, res) => {
+  let [, uuid, extension] = req.path.match(/([A-F\d]{8}-[A-F\d]{4}-4[A-F\d]{3}-[89AB][A-F\d]{3}-[A-F\d]{12})\.(json|html)$/i);
+  let db = await dbPromise;
 
-    return res.sendStatus(500);
+  let email = await db.get('SELECT * FROM emails WHERE uuid = ?', [uuid]);
+
+  if (extension === 'json') {
+    return res.json({metadata: JSON.parse(email.metadata), content: JSON.parse(email.content)});
   }
 
   for (var elem in (req.method === 'GET' ? req.query : req.body)) {
-    content = content.replace(new RegExp(`\\[${elem}\\]`, 'g'), sanitizeHtml((req.method === 'GET' ? req.query : req.body)[elem]));
+    email.html = email.html.replace(new RegExp(`\\[${elem}\\]`, 'g'), sanitizeHtml((req.method === 'GET' ? req.query : req.body)[elem]));
   }
 
-  return res.send(content);
+  return res.send(email.html);
 }));
 
 /**
@@ -147,7 +147,6 @@ app.get('/delete/:id', (req, res) => {
  */
 app.get('/send/:id', wrap(async (req, res) => {
   try {
-    await fs.access(path.join('./emails/', req.params.id + '.html'));
     var logFile;
 
     try {
@@ -169,6 +168,7 @@ app.get('/send/:id', wrap(async (req, res) => {
 }));
 
 app.post('/send/:id', wrap(async (req, res) => {
+  let db = await dbPromise;
   var regEmail = /[a-zA-Z0-9_.+?$%^&*-]+@[a-zA-z0-9-]+(?:\.[a-zA-Z0-9-]+)+/g;
   var recipients = req.body.to.match(regEmail);
   var formErrors = {};
@@ -214,7 +214,7 @@ app.post('/send/:id', wrap(async (req, res) => {
   var sendErrors = [];
   var sendSuccesses = [];
 
-  var content = await fs.readFile(path.join('./emails/', req.params.id + '.html'), {encoding: 'utf-8'});
+  var {html: content} = await db.get('SELECT * FROM emails WHERE uuid = ?', [req.params.id]);
 
   var mailOptions = Object.assign({
     from: (req.body.fromName.length > 0)? req.body.fromName + ' <' + req.body.fromAddress + '>' : req.body.fromAddress,
@@ -261,6 +261,7 @@ app.post('/send/:id', wrap(async (req, res) => {
 }));
 
 app.get('/send/:id/summary', wrap(async (req, res) => {
+  let db = await dbPromise;
   if (!req.session.sendSummary) {
     return res.redirect(`/send/${req.params.id}`);
   }
@@ -268,8 +269,8 @@ app.get('/send/:id/summary', wrap(async (req, res) => {
   var sendSummary = req.session.sendSummary;
   delete req.session.sendSummary;
 
-  var sourceJSON = await fs.readFile(path.join('./emails/', req.params.id + '.json'), {encoding: 'utf-8'});
-  var mailName = JSON.parse(sourceJSON).metadata.name;
+  let email = await db.get('SELECT * FROM emails WHERE uuid = ?', [req.params.id]);
+  var mailName = JSON.parse(email.metadata).name;
 
   return res.render('sendSummary', {
     id: req.params.id,
