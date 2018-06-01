@@ -27,13 +27,21 @@ const dbPromise = require('./server/utils/db');
         continue;
       }
 
-      await db.run('INSERT INTO emails(uuid, user, metadata, content, html) VALUES(?, ?, ?, ?, ?)', [
-        uuid,
-        user,
-        JSON.stringify(data.metadata),
-        JSON.stringify(data.content),
-        html
-      ]);
+      try {
+        await db.run('INSERT INTO emails(uuid, user, metadata, content, html) VALUES(?, ?, ?, ?, ?)', [
+          uuid,
+          user,
+          JSON.stringify(data.metadata),
+          JSON.stringify(data.content),
+          html
+        ]);
+      } catch (e) {
+        if (e.code === 'SQLITE_CONSTRAINT') {
+          continue;
+        }
+
+        throw e;
+      }
 
       console.log(uuid);
     }
