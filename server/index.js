@@ -72,11 +72,13 @@ app.all(/^\/emails\/[A-F\d]{8}-[A-F\d]{4}-4[A-F\d]{3}-[89AB][A-F\d]{3}-[A-F\d]{1
     return res.json({metadata: JSON.parse(email.metadata), content: JSON.parse(email.content)});
   }
 
+  let html = String(email.html);
+
   for (var elem in (req.method === 'GET' ? req.query : req.body)) {
-    email.html = email.html.replace(new RegExp(`\\[${elem}\\]`, 'g'), sanitizeHtml((req.method === 'GET' ? req.query : req.body)[elem]));
+    html = html.replace(new RegExp(`\\[${elem}\\]`, 'g'), sanitizeHtml((req.method === 'GET' ? req.query : req.body)[elem]));
   }
 
-  return res.send(email.html);
+  return res.send(html);
 }));
 
 /**
