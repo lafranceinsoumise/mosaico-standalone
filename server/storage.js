@@ -33,13 +33,15 @@ app.post('/save', wrap(async (req, res) => {
 
 app.get('/list/:index?', wrap(async (req, res) => {
   let db = await dbPromise;
-  let {nList} = await db.get('SELECT COUNT(uuid) as nList FROM emails WHERE user = ?', [req.user]);
+  let sqlParams = req.query.q ? [req.user, `%${req.query.q}%`] : [req.user];
+  let sqlConditions = req.query.q ? 'WHERE user = ? AND content LIKE ?' : 'WHERE user = ?';
+  let {nList} = await db.get(`SELECT COUNT(uuid) as nList FROM emails ${sqlConditions}`, [...sqlParams]);
   let nPage = Math.ceil(nList/10);
   let index = (Number(req.params.index) || 1);
   let start = ((index-1)*10);
 
-  let mails = (await db.all('SELECT * FROM emails WHERE user = ? ORDER BY rowid DESC LIMIT ?, 10', [
-    req.user,
+  let mails = (await db.all(`SELECT * FROM emails ${sqlConditions} ORDER BY rowid DESC LIMIT ?, 10`, [
+    ...sqlParams,
     start
   ])).map(email => {
     let metadata = JSON.parse(email.metadata);
@@ -64,7 +66,7 @@ app.get('/list/:index?', wrap(async (req, res) => {
     distTemplates.map(name => ({name: `${name} (Dist)`, url: `/new?template=/templates/dist/${name}/template.html`}))
   );
 
-  res.render('list', {list: mails, templates: templates, index: parseInt(index), nPage: nPage});
+  res.render('list', {list: mails, templates, index: parseInt(index), nPage, searchQuery: req.query.q});
 }));
 
 /**

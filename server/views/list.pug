@@ -10,12 +10,19 @@ block one-column
           - continue
         if index == i
           li.active.disabled
-            a(href=`/storage/list/${i}`)=i++
+            a(href=`/storage/list/${i}${searchQuery ? `?q=${searchQuery}`:''}`)=i++
         else
           li
-            a(href=`/storage/list/${i}`)=i++
+            a(href=`/storage/list/${i}${searchQuery ? `?q=${searchQuery}`:''}`)=i++
 
-  table.table
+  form.form-horizontal(action='/storage/list/', method="get")
+    .input-group
+      input.form-control(type="text" name="q" placeholder="Search" value=searchQuery)
+      .input-group-btn
+        button.btn.btn-default
+          span.glyphicon.glyphicon-search
+
+  table.table(style="margin-top: 10px;")
     tr
       th Emails
       th Creation
