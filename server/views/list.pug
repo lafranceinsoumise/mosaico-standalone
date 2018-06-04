@@ -8,7 +8,10 @@ block one-column
         li
           a(href=`/storage/list/${index-1}`, aria-label="Previous")
             span(aria-hidden="true") &laquo;
-      while i <= nPage
+      while (i <= nPage)
+        unless (Math.abs(i - index) < 5 || i % 5 == 0 || i == 1 || i == nPage)
+          - i++
+          - continue
         if index == i
           li.active.disabled
             a(href=`/storage/list/${i}`)=i++
