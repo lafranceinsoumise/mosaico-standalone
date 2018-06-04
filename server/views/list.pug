@@ -4,10 +4,6 @@ block one-column
   - var i = 1;
   nav(aria_label="Page navigation")
     ul.pagination
-      if index > 1
-        li
-          a(href=`/storage/list/${index-1}`, aria-label="Previous")
-            span(aria-hidden="true") &laquo;
       while (i <= nPage)
         unless (Math.abs(i - index) < 5 || i % 5 == 0 || i == 1 || i == nPage)
           - i++
@@ -18,10 +14,6 @@ block one-column
         else
           li
             a(href=`/storage/list/${i}`)=i++
-      li
-        if index < nPage
-          a(href=`/storage/list/${index+1}`, aria-label="Next")
-            span(aria-hidden="true") &raquo;
 
   table.table
     tr
