@@ -90,14 +90,15 @@ app.post('/duplicate', wrap(async (req, res) => {
     created : Math.round(Date.now())
   }));
 
-  await db.run('INSERT OR REPLACE INTO emails(uuid, metadata, content, html) VALUES(?, ?, ?, ?)', [
+  await db.run('INSERT OR REPLACE INTO emails(uuid, user, metadata, content, html) VALUES(?, ?, ?, ?, ?)', [
     email.uuid,
+    email.user,
     email.metadata,
     email.content,
     email.html
   ]);
 
-  res.redirect('/storage/list');
+  return res.redirect('/storage/list');
 }));
 
 module.exports = app;
