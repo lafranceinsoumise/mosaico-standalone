@@ -33,8 +33,15 @@ app.post('/save', wrap(async (req, res) => {
 
 app.get('/list/:index?', wrap(async (req, res) => {
   let db = await dbPromise;
-  let sqlParams = req.query.q ? [req.user, `%${req.query.q}%`] : [req.user];
-  let sqlConditions = req.query.q ? 'WHERE user = ? AND content LIKE ?' : 'WHERE user = ?';
+  let sqlParams = [req.user];
+  let sqlConditions = 'WHERE user = ?';
+  if (req.query.q) {
+    for (let word of req.query.q.split(' ')) {
+      sqlConditions += ' AND content LIKE ?';
+      sqlParams.push(`%${word}%`);
+    }
+  }
+
   let {nList} = await db.get(`SELECT COUNT(uuid) as nList FROM emails ${sqlConditions}`, [...sqlParams]);
   let nPage = Math.ceil(nList/10);
   let index = (Number(req.params.index) || 1);
