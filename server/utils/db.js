@@ -1,3 +1,14 @@
-const sqlite = require('sqlite');
+const sqlite = require("sqlite");
+const sqlite3 = require("sqlite3");
 
-module.exports = sqlite.open('./database.sqlite', { Promise }).then(db => db.migrate());
+module.exports = (async () => {
+  // open the database
+  const db = await sqlite.open({
+    filename: "./database.sqlite",
+    driver: sqlite3.Database,
+  });
+
+  await db.migrate();
+
+  return db;
+})();

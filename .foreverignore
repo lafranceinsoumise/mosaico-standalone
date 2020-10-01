@@ -1,6 +1,0 @@
-node_modules
-uploads
-emails
-logs
-.tmp
-database.sqlite*
