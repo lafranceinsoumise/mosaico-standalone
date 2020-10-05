@@ -33,6 +33,7 @@
     "connect-redis": "^3.4.2",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
+    "formidable": "^1.2.2",
     "gm": "^1.23.1",
     "jquery-file-upload-middleware": "^0.1.8",
     "moment": "^2.29.0",
