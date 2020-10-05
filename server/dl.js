@@ -1,33 +1,37 @@
-'use strict';
-
-const htmlToText = require('nodemailer-html-to-text').htmlToText;
-const nodemailer = require('nodemailer');
-const config = require('../config');
+const htmlToText = require("nodemailer-html-to-text").htmlToText;
+const nodemailer = require("nodemailer");
+const config = require("../config");
 
 var mailer = nodemailer.createTransport(config.emailTransport);
-mailer.use('compile', htmlToText());
+mailer.use("compile", htmlToText());
 
 module.exports = (req, res, next) => {
   var source = req.body.html;
 
-  if (req.body.action === 'download') {
-    res.setHeader('Content-disposition', 'attachment; filename=' + req.body.filename);
-    res.setHeader('Content-type', 'text/html');
+  if (req.body.action === "download") {
+    res.setHeader(
+      "Content-disposition",
+      "attachment; filename=" + req.body.filename
+    );
+    res.setHeader("Content-type", "text/html");
     res.write(source);
     return res.end();
   }
 
-  if (req.body.action === 'email') {
-    var mailOptions = Object.assign({
-      to: req.body.rcpt, // list of receivers
-      subject: req.body.subject, // Subject line
-      html: source // html body
-    }, config.emailOptions);
+  if (req.body.action === "email") {
+    var mailOptions = Object.assign(
+      {
+        to: req.body.rcpt, // list of receivers
+        subject: req.body.subject, // Subject line
+        html: source, // html body
+      },
+      config.emailOptions
+    );
 
     mailer.sendMail(mailOptions, (err, info) => {
       if (err) return next(err);
 
-      return res.send('OK: '+ info.response);
+      return res.send("OK: " + info.response);
     });
   }
 };
