@@ -47,7 +47,7 @@
     "pug": "^3.0.1",
     "redis": "^2.8.0",
     "request": "^2.88.2",
-    "sanitize-html": "^1.27.5",
+    "sanitize-html": "^2.3.2",
     "sqlite": "^4.0.6",
     "sqlite3": "^5.0.0",
     "uuid": "^3.4.0",
