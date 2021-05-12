@@ -40,7 +40,7 @@
     "morgan": "^1.10.0",
     "mkdirp": "0.3.4",
     "mz": "^2.7.0",
-    "nodemailer": "^4.7.0",
+    "nodemailer": "^6.4.16",
     "nodemailer-html-to-text": "^3.1.0",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
