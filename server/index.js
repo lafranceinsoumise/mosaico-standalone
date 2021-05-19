@@ -16,6 +16,8 @@ const wrap = require("./utils/wrap");
 const passport = require("./authentication");
 const RedisStore = require("connect-redis")(session);
 const dbPromise = require("./utils/db");
+const redis = require("redis");
+const redisClient = redis.createClient();
 var mailer = nodemailer.createTransport(config.emailTransport);
 
 mailer.use("compile", htmlToText());
@@ -103,7 +105,7 @@ app.get("/img", require("./img"));
 
 app.use(
   session({
-    store: new RedisStore(),
+	  store: new RedisStore({ client: redisClient }),
     secret: config.secret,
     resave: true,
     saveUninitialized: true,

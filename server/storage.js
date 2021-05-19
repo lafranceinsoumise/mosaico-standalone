@@ -74,7 +74,7 @@ app.get(
     });
 
     var templates = config.users
-      .filter((user) => user.username == req.user)[0]
+      .filter((user) => user.username === req.user)[0]
       .templates.map((name) => ({
         name: `${name} (Custom)`,
         url: `/new?template=/templates/custom/${name}/template.html`,
