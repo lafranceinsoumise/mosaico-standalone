@@ -51,7 +51,7 @@
     "sqlite": "^4.0.6",
     "sqlite3": "^5.0.0",
     "uuid": "^3.4.0",
-    "validator": "^10.11.0"
+    "validator": "^13.7.0"
   },
   "devDependencies": {
     "mocha": "^8.1.3",
