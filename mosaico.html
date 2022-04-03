@@ -12,6 +12,11 @@
     <script src="/mosaico/mosaico.min.js?v=0.17.3"></script>
     <script>
       $(function() {
+        function unload() {
+          return true;
+        };
+        $(window).on('beforeunload',unload); ;
+
         if (!Mosaico.isCompatible()) {
           alert('Update your browser!');
           return;
@@ -49,6 +54,8 @@
             saveCmd.enabled(false);
             var metadata = JSON.parse(vm.exportMetadata());
             metadata.name = prompt('Nom du template', metadata.name);
+            var html = vm.exportHTML();
+            // console.log(html);
             var post = $.post(base + '/storage/save', {
               uuid: saveCmd.uuid,
               html: vm.exportHTML(),
@@ -64,6 +71,17 @@
             });
             post.always(function() {
               saveCmd.enabled(true);
+            });
+            $(window).off('beforeunload', unload);
+            $(window).on('beforeunload', function () {
+              vm.exportMetadata();
+              console.log(html);
+              console.log(vm.exportHTML());
+              if (html !== vm.exportHTML()) {
+                console.log('titi');
+                return true;
+              }
+              return true;
             });
           };
 
