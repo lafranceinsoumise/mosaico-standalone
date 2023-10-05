@@ -76,13 +76,13 @@ app.get(
     var templates = config.users
       .filter((user) => user.username === req.user)[0]
       .templates.map((name) => ({
-        name: `${name} (Custom)`,
+        name: `${config.templateNames && config.templateNames[name] || name}`,
         url: `/new?template=/templates/custom/${name}/template.html`,
       }));
 
     templates = templates.concat(
       distTemplates.map((name) => ({
-        name: `${name} (Dist)`,
+        name: `${name} [example]`,
         url: `/new?template=/templates/dist/${name}/template.html`,
       }))
     );
