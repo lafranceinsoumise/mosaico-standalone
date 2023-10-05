@@ -1,17 +1,18 @@
-const htmlToText = require("nodemailer-html-to-text").htmlToText;
-const nodemailer = require("nodemailer");
-const config = require("../config");
+import nodemailer from "nodemailer";
+import { htmlToText } from "nodemailer-html-to-text";
 
-var mailer = nodemailer.createTransport(config.emailTransport);
+import config from "../config.js";
+
+const mailer = nodemailer.createTransport(config.emailTransport);
 mailer.use("compile", htmlToText());
 
-module.exports = (req, res, next) => {
-  var source = req.body.html;
+export default (req, res, next) => {
+  const source = req.body.html;
 
   if (req.body.action === "download") {
     res.setHeader(
       "Content-disposition",
-      "attachment; filename=" + req.body.filename
+      "attachment; filename=" + req.body.filename,
     );
     res.setHeader("Content-type", "text/html");
     res.write(source);
@@ -19,13 +20,13 @@ module.exports = (req, res, next) => {
   }
 
   if (req.body.action === "email") {
-    var mailOptions = Object.assign(
+    const mailOptions = Object.assign(
       {
         to: req.body.rcpt, // list of receivers
         subject: req.body.subject, // Subject line
         html: source, // html body
       },
-      config.emailOptions
+      config.emailOptions,
     );
 
     mailer.sendMail(mailOptions, (err, info) => {

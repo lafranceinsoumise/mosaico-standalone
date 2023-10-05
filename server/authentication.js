@@ -1,19 +1,19 @@
-const passport = require("passport");
-const LocalStrategy = require("passport-local").Strategy;
+import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
 
-const users = require("../config").users;
+import config from "../config.js";
 
 passport.use(
   new LocalStrategy((username, password, done) => {
-    var user = users.filter(
-      (u) => u.username == username && u.password == password
+    var user = config.users.filter(
+      (u) => u.username == username && u.password == password,
     );
     if (user.length == 0) {
       return done(null, false, { message: "Incorrect credentials." });
     }
 
     return done(null, user[0].username);
-  })
+  }),
 );
 
 passport.serializeUser((user, done) => {
@@ -24,4 +24,4 @@ passport.deserializeUser((user, done) => {
   done(null, user);
 });
 
-module.exports = passport;
+export default passport;

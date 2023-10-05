@@ -1,9 +1,10 @@
 // Put here your email sending configurations!
-module.exports = {
+export default {
   emailTransport: {
     // host: 'yoursmtpserver',
     // port: 25,
     // auth: { user: '####', pass: '####' }
+    // You can create a test transport here: https://ethereal.email/create
   },
   emailOptions: {
     from: 'Your Name Here <example@example.com>'

@@ -1,11 +1,13 @@
-const express = require("express");
-const newUuid = require("uuid/v4");
-const wrap = require("./utils/wrap");
-const dbPromise = require("./utils/db");
-const config = require("../config");
-const distTemplates = require("fs").readdirSync("./templates/dist");
+import express from "express";
+import fs from "fs";
+import { v4 as newUuid } from "uuid";
 
-var app = express.Router();
+import config from "../config.js";
+import dbPromise from "./utils/db.js";
+import wrap from "./utils/wrap.js";
+
+const distTemplates = fs.readdirSync("./templates/dist");
+const app = express.Router();
 
 app.post(
   "/save",
@@ -22,11 +24,11 @@ app.post(
 
     await db.run(
       "INSERT OR REPLACE INTO emails(uuid, user, metadata, content, html) VALUES(?, ?, ?, ?, ?)",
-      [uuid, req.user, req.body.metadata, req.body.content, html]
+      [uuid, req.user, req.body.metadata, req.body.content, html],
     );
 
     res.status(202).json({ uuid: uuid });
-  })
+  }),
 );
 
 app.get(
@@ -42,11 +44,9 @@ app.get(
       }
     }
 
-    let {
-      nList,
-    } = await db.get(
+    let { nList } = await db.get(
       `SELECT COUNT(uuid) as nList FROM emails ${sqlConditions}`,
-      [...sqlParams]
+      [...sqlParams],
     );
     let nPage = Math.ceil(nList / 10);
     let index = Number(req.params.index) || 1;
@@ -55,7 +55,7 @@ app.get(
     let mails = (
       await db.all(
         `SELECT * FROM emails ${sqlConditions} ORDER BY rowid DESC LIMIT ?, 10`,
-        [...sqlParams, start]
+        [...sqlParams, start],
       )
     ).map((email) => {
       let metadata = JSON.parse(email.metadata);
@@ -73,19 +73,18 @@ app.get(
       };
     });
 
-    var templates = config.users
+    const templates = config.users
       .filter((user) => user.username === req.user)[0]
       .templates.map((name) => ({
         name: `${name} (Custom)`,
         url: `/new?template=/templates/custom/${name}/template.html`,
-      }));
-
-    templates = templates.concat(
-      distTemplates.map((name) => ({
-        name: `${name} (Dist)`,
-        url: `/new?template=/templates/dist/${name}/template.html`,
       }))
-    );
+      .concat(
+        distTemplates.map((name) => ({
+          name: `${name} (Dist)`,
+          url: `/new?template=/templates/dist/${name}/template.html`,
+        })),
+      );
 
     res.render("list", {
       list: mails,
@@ -94,7 +93,7 @@ app.get(
       nPage,
       searchQuery: req.query.q,
     });
-  })
+  }),
 );
 
 /**
@@ -107,7 +106,7 @@ app.post(
     await db.run("DELETE FROM emails WHERE uuid = ?", [req.body.id]);
 
     res.redirect("/storage/list");
-  })
+  }),
 );
 
 /**
@@ -126,16 +125,16 @@ app.post(
       Object.assign(JSON.parse(email.metadata), {
         name: req.body.email_name,
         created: Math.round(Date.now()),
-      })
+      }),
     );
 
     await db.run(
       "INSERT OR REPLACE INTO emails(uuid, user, metadata, content, html) VALUES(?, ?, ?, ?, ?)",
-      [email.uuid, email.user, email.metadata, email.content, email.html]
+      [email.uuid, email.user, email.metadata, email.content, email.html],
     );
 
     return res.redirect("/storage/list");
-  })
+  }),
 );
 
-module.exports = app;
+export default app;
