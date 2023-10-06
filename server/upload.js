@@ -1,7 +1,7 @@
-const express = require("express");
-const upload = require("jquery-file-upload-middleware");
+import express from "express";
+import upload from "jquery-file-upload-middleware";
 
-const config = require("../config");
+import config from "../config.js";
 
 var app = express.Router();
 
@@ -14,4 +14,4 @@ var uploadOptions = {
 };
 app.use("/", upload.fileHandler(uploadOptions));
 
-module.exports = app;
+export default app;

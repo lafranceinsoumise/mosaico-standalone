@@ -1,7 +1,7 @@
-const sqlite = require("sqlite");
-const sqlite3 = require("sqlite3");
+import * as sqlite from "sqlite";
+import sqlite3 from "sqlite3";
 
-module.exports = (async () => {
+export default (async () => {
   // open the database
   const db = await sqlite.open({
     filename: "./database.sqlite",

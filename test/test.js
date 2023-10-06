@@ -1,18 +1,17 @@
 /* eslint-env mocha */
-'use strict';
+"use strict";
 
-const request = require('supertest');
+import request from "supertest";
 
-const app = require('../server');
+import app from "../server/index.js";
 
-describe('Request', function() {
-  describe('GET /', function() {
-    it('should redirect to /storage/list', function(done) {
+describe("Request", function () {
+  describe("GET /", function () {
+    it("should redirect to /storage/list", function (done) {
       request(app)
-        .get('/')
+        .get("/")
         .expect(302)
-        .expect('Location', '/storage/list', done)
-      ;
+        .expect("Location", "/storage/list", done);
     });
   });
 });

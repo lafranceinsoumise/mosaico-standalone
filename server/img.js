@@ -1,5 +1,7 @@
-const gm = require("gm").subClass({ imageMagick: true });
-const request = require("request");
+import GM from "gm";
+import request from "request";
+
+const gm = GM.subClass({ imageMagick: true });
 
 /*
  * GET with src, method and params query values
@@ -12,7 +14,7 @@ const request = require("request");
  * resize the image to be inside the dimensions.
  * this uses "gm" library to do manipulation (you need ImageMagick installed in your system).
  */
-module.exports = (req, res, next) => {
+export default (req, res, next) => {
   var [width, height] = req.query.params.split(",");
 
   if (req.query.method == "placeholder") {
@@ -29,12 +31,12 @@ module.exports = (req, res, next) => {
           [x, y],
           [x + size, y],
           [x + size * 2, y + size],
-          [x + size * 2, y + size * 2]
+          [x + size * 2, y + size * 2],
         )
         .drawPolygon(
           [x, y + size],
           [x + size, y + size * 2],
-          [x, y + size * 2]
+          [x, y + size * 2],
         );
       x = x + size * 2;
       if (x > width) {
@@ -61,7 +63,7 @@ module.exports = (req, res, next) => {
       ir.autoOrient()
         .resize(
           width == "null" ? null : width,
-          height == "null" ? null : height
+          height == "null" ? null : height,
         )
         .stream()
         .pipe(res);

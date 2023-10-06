@@ -1,25 +1,32 @@
-const bodyParser = require("body-parser");
-const express = require("express");
-const fs = require("mz/fs");
-const htmlToText = require("nodemailer-html-to-text").htmlToText;
-const moment = require("moment");
-const morgan = require("morgan");
-const nodemailer = require("nodemailer");
-const path = require("path");
-const session = require("express-session");
-const sanitizeHtml = require("sanitize-html");
-const validator = require("validator");
+import bodyParser from "body-parser";
+import RedisStore from "connect-redis";
+import express from "express";
+import session from "express-session";
+import moment from "moment";
+import morgan from "morgan";
+import { fs } from "mz";
+import nodemailer from "nodemailer";
+import { htmlToText } from "nodemailer-html-to-text";
+import path from "path";
+import redis from "redis";
+import sanitizeHtml from "sanitize-html";
+import validator from "validator";
 
-var app = express();
-const config = require("../config");
-const wrap = require("./utils/wrap");
-const passport = require("./authentication");
-const RedisStore = require("connect-redis")(session);
-const dbPromise = require("./utils/db");
-const redis = require("redis");
+import config from "../config.js";
+import passport from "./authentication.js";
+import dl from "./dl.js";
+import img from "./img.js";
+import storage from "./storage.js";
+import upload from "./upload.js";
+import dbPromise from "./utils/db.js";
+import wrap from "./utils/wrap.js";
+
 const redisClient = redis.createClient();
-var mailer = nodemailer.createTransport(config.emailTransport);
+await redisClient.connect();
 
+const app = express();
+
+const mailer = nodemailer.createTransport(config.emailTransport);
 mailer.use("compile", htmlToText());
 
 // Static files
@@ -54,12 +61,12 @@ app.use(
   bodyParser.urlencoded({
     limit: "5mb",
     extended: true,
-  })
+  }),
 );
 
 // Tool function
 function isEmpty(obj) {
-  for (var x in obj) {
+  for (let x in obj) {
     return false;
   }
   return true;
@@ -70,7 +77,7 @@ app.all(
   /^\/emails\/[A-F\d]{8}-[A-F\d]{4}-4[A-F\d]{3}-[89AB][A-F\d]{3}-[A-F\d]{12}\.(json|html)$/i,
   wrap(async (req, res) => {
     let [, uuid, extension] = req.path.match(
-      /([A-F\d]{8}-[A-F\d]{4}-4[A-F\d]{3}-[89AB][A-F\d]{3}-[A-F\d]{12})\.(json|html)$/i
+      /([A-F\d]{8}-[A-F\d]{4}-4[A-F\d]{3}-[89AB][A-F\d]{3}-[A-F\d]{12})\.(json|html)$/i,
     );
     let db = await dbPromise;
 
@@ -85,31 +92,34 @@ app.all(
 
     let html = String(email.html);
 
-    for (var elem in req.method === "GET" ? req.query : req.body) {
+    for (let elem in req.method === "GET" ? req.query : req.body) {
       html = html.replace(
         new RegExp(`\\[${elem}\\]`, "g"),
-        sanitizeHtml((req.method === "GET" ? req.query : req.body)[elem])
+        sanitizeHtml((req.method === "GET" ? req.query : req.body)[elem]),
       );
     }
 
     return res.send(html);
-  })
+  }),
 );
 
 /**
  * See doc in module
  */
-app.get("/img", require("./img"));
+app.get("/img", img);
 
 // Authentication
 
 app.use(
   session({
-	  store: new RedisStore({ client: redisClient }),
+    store: new RedisStore({
+      client: redisClient,
+      prefix: "mosaico-standalone",
+    }),
     secret: config.secret,
     resave: true,
     saveUninitialized: true,
-  })
+  }),
 );
 app.use(passport.initialize());
 app.use(passport.session());
@@ -122,7 +132,7 @@ app.use(
   passport.authenticate("local", {
     successRedirect: "/storage/list",
     failureRedirect: "/login",
-  })
+  }),
 );
 app.get("/logout", (req, res) => {
   req.logout();
@@ -151,7 +161,7 @@ app.get("/", (req, res) => {
  * GET load Mosaico
  */
 app.get("/mosaico", (req, res) =>
-  res.sendFile(path.join(process.cwd(), "mosaico.html"))
+  res.sendFile(path.join(process.cwd(), "mosaico.html")),
 );
 app.get("/new", (req, res) => {
   res.render("editor", { template: req.query.template });
@@ -176,7 +186,7 @@ app.get(
   "/send/:id",
   wrap(async (req, res) => {
     try {
-      var logFile;
+      let logFile;
 
       try {
         await fs.access(path.join("./logs/" + req.params.id + ".csv"));
@@ -194,16 +204,16 @@ app.get(
     } catch (e) {
       res.sendStatus(404);
     }
-  })
+  }),
 );
 
 app.post(
   "/send/:id",
   wrap(async (req, res) => {
     let db = await dbPromise;
-    var regEmail = /[a-zA-Z0-9_.+?$%^&*-]+@[a-zA-z0-9-]+(?:\.[a-zA-Z0-9-]+)+/g;
-    var recipients = req.body.to.match(regEmail);
-    var formErrors = {};
+    let regEmail = /[a-zA-Z0-9_.+?$%^&*-]+@[a-zA-z0-9-]+(?:\.[a-zA-Z0-9-]+)+/g;
+    let recipients = req.body.to.match(regEmail);
+    let formErrors = {};
 
     if (!recipients) {
       formErrors["to"] = "No valid recipient.";
@@ -240,20 +250,20 @@ app.post(
       });
     }
 
-    var logFile = fs.createWriteStream(`./logs/${req.params.id}.csv`, {
+    let logFile = fs.createWriteStream(`./logs/${req.params.id}.csv`, {
       flag: "a+",
       encoding: "utf-8",
     });
 
-    var sendErrors = [];
-    var sendSuccesses = [];
+    let sendErrors = [];
+    let sendSuccesses = [];
 
-    var { html: content } = await db.get(
+    let { html: content } = await db.get(
       "SELECT * FROM emails WHERE uuid = ?",
-      [req.params.id]
+      [req.params.id],
     );
 
-    var mailOptions = Object.assign({
+    let mailOptions = Object.assign({
       from:
         req.body.fromName.length > 0
           ? req.body.fromName + " <" + req.body.fromAddress + ">"
@@ -262,14 +272,14 @@ app.post(
       html: content, // html body
     });
 
-    var hasPlaceholders = content.includes("[EMAIL]");
+    let hasPlaceholders = content.includes("[EMAIL]");
 
-    for (var i = 0; i < recipients.length; i++) {
-      var currentRecipient = recipients[i];
+    for (let i = 0; i < recipients.length; i++) {
+      let currentRecipient = recipients[i];
 
       if (!validator.isEmail(currentRecipient)) {
         logFile.write(
-          `${new Date()};${currentRecipient};error;Error: Invalid address\n`
+          `${new Date()};${currentRecipient};error;Error: Invalid address\n`,
         );
         sendErrors.push({
           email: currentRecipient,
@@ -282,14 +292,14 @@ app.post(
       if (hasPlaceholders)
         mailOptions.html = content.replace(
           new RegExp("\\[EMAIL\\]", "g"),
-          currentRecipient
+          currentRecipient,
         );
 
       await new Promise((resolve) => {
         mailer.sendMail(mailOptions, (err) => {
           if (err) {
             logFile.write(
-              `${new Date()};${currentRecipient};error;Error: ${err.message}\n`
+              `${new Date()};${currentRecipient};error;Error: ${err.message}\n`,
             );
             sendErrors.push({ email: currentRecipient, message: err.message });
 
@@ -297,7 +307,7 @@ app.post(
           }
 
           logFile.write(
-            `${new Date()};${currentRecipient};success;Email sent\n`
+            `${new Date()};${currentRecipient};success;Email sent\n`,
           );
           sendSuccesses.push(currentRecipient);
 
@@ -311,7 +321,7 @@ app.post(
     req.session.sendSummary.successes = sendSuccesses;
 
     return res.redirect(`/send/${req.params.id}/summary`);
-  })
+  }),
 );
 
 app.get(
@@ -322,13 +332,13 @@ app.get(
       return res.redirect(`/send/${req.params.id}`);
     }
 
-    var sendSummary = req.session.sendSummary;
+    let sendSummary = req.session.sendSummary;
     delete req.session.sendSummary;
 
     let email = await db.get("SELECT * FROM emails WHERE uuid = ?", [
       req.params.id,
     ]);
-    var mailName = JSON.parse(email.metadata).name;
+    let mailName = JSON.parse(email.metadata).name;
 
     return res.render("sendSummary", {
       id: req.params.id,
@@ -336,14 +346,14 @@ app.get(
       successes: sendSummary.successes,
       errors: sendSummary.errors,
     });
-  })
+  }),
 );
 
 app.get(
   "/send/:id/export",
   wrap(async (req, res) => {
     res.download(path.join("./logs/", `${req.params.id}.csv`));
-  })
+  }),
 );
 
 /**
@@ -360,7 +370,7 @@ app.get("/duplicate", (req, res) => {
  * POST to upload images (using the jQuery-file-upload protocol)
  * when uploading it also create thumbnails for each uploaded image.
  */
-app.use("/upload", require("./upload"));
+app.use("/upload", upload);
 
 /**
  * POST
@@ -368,12 +378,12 @@ app.use("/upload", require("./upload"));
  * (it does inlining using Styliner) since Mosaico 0.15 CSS inlining happens in the client.
  * if asked to send an email it sends it using nodemailer
  */
-app.post("/dl", require("./dl"));
+app.post("/dl", dl);
 
 /**
  * See docs in module
  */
-app.use("/storage", require("./storage"));
+app.use("/storage", storage);
 
 app.listen(process.env.PORT || 3000, "127.0.0.1", (err) => {
   if (err) return console.error(err);
@@ -381,4 +391,4 @@ app.listen(process.env.PORT || 3000, "127.0.0.1", (err) => {
   console.log("Listening on http://localhost:" + (process.env.PORT || 3000));
 });
 
-module.exports = app;
+export default app;
