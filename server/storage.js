@@ -76,7 +76,7 @@ app.get(
     const templates = config.users
       .filter((user) => user.username === req.user)[0]
       .templates.map((name) => ({
-        name: `${name} (Custom)`,
+        name: `${(config.templateNames && config.templateNames[name]) || name}`,
         url: `/new?template=/templates/custom/${name}/template.html`,
       }))
       .concat(

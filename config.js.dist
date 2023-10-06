@@ -16,9 +16,17 @@ export default {
   users: [
     {
       username: 'admin',
-      password: 'password'
+      password: 'password',
+      templates: [
+        // a list of the available custom templates (directory name) for the user
+      ]
     }
   ],
+  templateNames: {
+    // the names to use as label for the custom templates as key/value pair
+    // the key should be the custom template directory name
+    // the value should be the display template name string
+  },
   secret: 'cat keyboard',
   https: false
 };
