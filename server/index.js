@@ -1,5 +1,5 @@
 import bodyParser from "body-parser";
-import RedisStore from "connect-redis";
+import { RedisStore } from "connect-redis";
 import express from "express";
 import session from "express-session";
 import moment from "moment";
@@ -21,7 +21,9 @@ import upload from "./upload.js";
 import dbPromise from "./utils/db.js";
 import wrap from "./utils/wrap.js";
 
-const redisClient = redis.createClient();
+const redisClient = redis.createClient({
+  url: "redis://172.24.0.2:6379",
+});
 await redisClient.connect();
 
 const app = express();
@@ -130,7 +132,7 @@ app.get("/login", (req, res) => {
 app.use(
   "/login",
   passport.authenticate("local", {
-    successRedirect: "/storage/list",
+    successRedirect: "/storage/list/1",
     failureRedirect: "/login",
   }),
 );
@@ -153,7 +155,7 @@ app.use("/", (req, res, next) => {
 });
 
 app.get("/", (req, res) => {
-  return res.redirect("/storage/list");
+  return res.redirect("/storage/list/1");
 });
 
 /**
@@ -232,9 +234,8 @@ app.post(
     }
 
     if (!validator.isEmail(req.body.fromAddress)) {
-      formErrors[
-        "fromAdress"
-      ] = `From email address ${req.body.fromAddress} is invalid.`;
+      formErrors["fromAdress"] =
+        `From email address ${req.body.fromAddress} is invalid.`;
     }
 
     if (!isEmpty(formErrors)) {

@@ -9,6 +9,11 @@ import wrap from "./utils/wrap.js";
 const distTemplates = fs.readdirSync("./templates/dist");
 const app = express.Router();
 
+// Redirect /list to /list/1
+app.get("/list", (req, res) => {
+  res.redirect("/storage/list/1" + (req.query.q ? `?q=${req.query.q}` : ""));
+});
+
 app.post(
   "/save",
   wrap(async (req, res) => {
@@ -32,7 +37,7 @@ app.post(
 );
 
 app.get(
-  "/list/:index?",
+  "/list/:index",
   wrap(async (req, res) => {
     let db = await dbPromise;
     let sqlParams = [req.user];

@@ -5,7 +5,7 @@
   "description": "Standalone email composer integrating Mosaico.",
   "main": "index.js",
   "engines": {
-    "node": ">=18.12.0"
+    "node": ">=24.13.0"
   },
   "type": "module",
   "scripts": {
@@ -33,33 +33,33 @@
   "homepage": "https://github.com/lafranceinsoumise/mosaico-standalone",
   "dependencies": {
     "bluebird": "^3.7.2",
-    "body-parser": "^1.20.2",
-    "connect-redis": "^7.1.0",
-    "express": "^4.18.2",
-    "express-session": "^1.17.3",
-    "formidable": "1.1.1",
-    "gm": "^1.25.0",
-    "jquery-file-upload-middleware": "^0.1.8",
-    "mkdirp": "0.3.4",
-    "moment": "^2.29.4",
-    "morgan": "^1.10.0",
+    "body-parser": "^2.2.2",
+    "connect-redis": "^9.0.0",
+    "express": "^5.2.1",
+    "express-session": "^1.18.2",
+    "formidable": "3.5.4",
+    "gm": "^1.25.1",
+    "mkdirp": "3.0.1",
+    "moment": "^2.30.1",
+    "morgan": "^1.10.1",
+    "multer": "^2.0.2",
     "mz": "^2.7.0",
-    "nodemailer": "^6.9.6",
+    "nodemailer": "^7.0.12",
     "nodemailer-html-to-text": "^3.2.0",
-    "passport": "^0.6.0",
+    "passport": "^0.7.0",
     "passport-local": "^1.0.0",
-    "pug": "^3.0.2",
-    "redis": "^4.6.10",
+    "pug": "^3.0.3",
+    "redis": "^5.10.0",
     "request": "^2.88.2",
-    "sanitize-html": "^2.11.0",
-    "sqlite": "^5.0.1",
-    "sqlite3": "^5.1.6",
-    "uuid": "^9.0.1",
-    "validator": "^13.11.0"
+    "sanitize-html": "^2.17.0",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7",
+    "uuid": "^13.0.0",
+    "validator": "^13.15.26"
   },
   "devDependencies": {
-    "mocha": "^10.2.0",
-    "prettier": "3.0.3",
-    "supertest": "^6.3.3"
+    "mocha": "^11.7.5",
+    "prettier": "3.8.0",
+    "supertest": "^7.2.2"
   }
 }
