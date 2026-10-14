@@ -8,8 +8,8 @@
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
     <link rel="icon" href="/favicon.ico" type="image/x-icon" />
 
-    <script src="/mosaico/mosaico-libs.min.js?v=0.17.3"></script>
-    <script src="/mosaico/mosaico.min.js?v=0.17.3"></script>
+    <script src="/mosaico/mosaico-libs-and-tinymce.min.js?v=0.18.11"></script>
+    <script src="/mosaico/mosaico.min.js?v=0.18.11"></script>
     <script>
       $(function() {
         if (!Mosaico.isCompatible()) {
@@ -58,7 +58,7 @@
             post.fail(function() {
               vm.notifier.error(vm.t('Unexpected error talking to server.'));
             });
-            post.success(function(res) {
+            post.done(function(res) {
               vm.notifier.success(vm.t('Saved!'));
               saveCmd.uuid = res.uuid;
             });
@@ -92,7 +92,7 @@
             post.fail(function() {
               vm.notifier.error(vm.t('Unexpected error talking to server.'));
             });
-            post.success(function() {
+            post.done(function() {
               vm.notifier.success(vm.t("Test email sent..."));
             });
             post.always(function() {
@@ -122,8 +122,8 @@
         }
       });
     </script>
-    <link rel="stylesheet" href="/mosaico/mosaico-libs.min.css?v=0.17.3" />
-    <link rel="stylesheet" href="/mosaico/mosaico-material.min.css?v=0.17.3" />
+    <link rel="stylesheet" href="/mosaico/mosaico-libs-and-tinymce.min.css?v=0.18.11" />
+    <link rel="stylesheet" href="/mosaico/mosaico-material.min.css?v=0.18.11" />
   </head>
   <body class="mo-standalone"></body>
 </html>
