@@ -12,20 +12,35 @@ It features :
 
 # Install and run
 
-You need NodeJS >= 10, Imagemagick and a local Redis server to make it run. The local Redis server can be launch
+You need NodeJS >= 22 and a Redis server. A local Redis server can be launched
 using the docker-compose file provided at the root of this project.
 
 ```bash
-git clone git@github.com:guilro/mosaico-standalone.git
+git clone git@github.com:lafranceinsoumise/mosaico-standalone.git
 cd mosaico-standalone
 npm install
 cp config.js.dist config.js # edit this file
-npm start
+docker compose up -d
+SESSION_SECRET=$(openssl rand -base64 48) npm start
 ```
+
+Environment variables:
+
+* `SESSION_SECRET`: session secret, if not set directly in `config.js` (required)
+* `REDIS_URL`: Redis connection URL (default `redis://localhost:6379`)
+* `DATABASE_PATH`: SQLite database file (default `./database.sqlite`)
+* `PORT`: HTTP port (default `3000`), the server only listens on `127.0.0.1`
+
+The app is meant to run behind a reverse proxy which must forward the `Host`
+header (or `X-Forwarded-Host`) and `X-Forwarded-Proto`. Set `https: true` in
+`config.js` when served over HTTPS.
 
 # Configuration and usage
 
-Configure SMTP, sending address and users in `config.json`. Each user has private access to its own emails.
+Configure SMTP, sending address and users in `config.js`. Each user has private access to its own emails.
+
+Passwords can be stored hashed: run `npm run hash-password` and paste the output
+in the `password` field.
 
 Place custom templates in `templates/custom`. They will appear in the creation form.
 
@@ -39,6 +54,15 @@ You can use this feature from other services to use Mosaico as an email template
 
 # Changelog
 
+* 0.4.0 :
+    * security fixes: per-user access control on emails and send logs, image
+      uploads restricted to real images, no more remote fetching in `/img`,
+      sandboxed email and upload pages, CSRF protection, login rate limiting,
+      hashed passwords support, hardened session cookie
+    * replace ImageMagick (`gm`) and `jquery-file-upload-middleware` with `sharp` and `multer`
+    * update to Express 5 and up-to-date dependencies
+    * BREAKING: require node>=22, logout is now a POST, `/emails/[uuid].json` requires authentication,
+      `/img` only processes images from `uploads/` and `templates/`
 * 0.3.0 :
     * update deps
 * 0.2.0 :

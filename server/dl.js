@@ -1,38 +1,33 @@
-import nodemailer from "nodemailer";
-import { htmlToText } from "nodemailer-html-to-text";
+import validator from "validator";
 
 import config from "../config.js";
+import mailer from "./mailer.js";
 
-const mailer = nodemailer.createTransport(config.emailTransport);
-mailer.use("compile", htmlToText());
+export default async (req, res) => {
+  const { action, html: source, filename, rcpt, subject } = req.body || {};
 
-export default (req, res, next) => {
-  const source = req.body.html;
+  if (typeof source !== "string") return res.sendStatus(400);
 
-  if (req.body.action === "download") {
-    res.setHeader(
-      "Content-disposition",
-      "attachment; filename=" + req.body.filename,
-    );
-    res.setHeader("Content-type", "text/html");
-    res.write(source);
-    return res.end();
+  if (action === "download") {
+    res.attachment(String(filename || "email.html"));
+    res.type("text/html");
+    return res.send(source);
   }
 
-  if (req.body.action === "email") {
-    const mailOptions = Object.assign(
-      {
-        to: req.body.rcpt, // list of receivers
-        subject: req.body.subject, // Subject line
-        html: source, // html body
-      },
-      config.emailOptions,
-    );
+  if (action === "email") {
+    if (typeof rcpt !== "string" || !validator.isEmail(rcpt)) {
+      return res.status(400).send("Invalid recipient.");
+    }
 
-    mailer.sendMail(mailOptions, (err, info) => {
-      if (err) return next(err);
-
-      return res.send("OK: " + info.response);
+    const info = await mailer.sendMail({
+      to: rcpt,
+      subject: String(subject || ""),
+      html: source,
+      ...config.emailOptions,
     });
+
+    return res.send("OK: " + info.response);
   }
+
+  return res.sendStatus(400);
 };
