@@ -1,0 +1,44 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+    ignore:
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-major" ]
+    groups:
+      dev-minor-patch:
+        applies-to: version-updates
+        dependency-type: development
+        update-types: [ "minor", "patch" ]
+      prod-patch:
+        applies-to: version-updates
+        dependency-type: production
+        update-types: [ "patch" ]
+      security-dev:
+        applies-to: security-updates
+        dependency-type: development
+        update-types: [ "minor", "patch" ]
+      security-prod-patch:
+        applies-to: security-updates
+        dependency-type: production
+        update-types: [ "patch" ]
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      actions:
+        patterns: [ "*" ]
