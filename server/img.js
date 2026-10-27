@@ -1,7 +1,49 @@
-import GM from "gm";
-import request from "request";
+import path from "node:path";
 
-const gm = GM.subClass({ imageMagick: true });
+import sharp from "sharp";
+
+const MAX_SIZE = 2400;
+const ALLOWED_ROOTS = ["uploads", "templates"].map((dir) => path.resolve(dir));
+
+function parseSize(value) {
+  if (value === undefined || value === "null" || value === "") return null;
+  const n = Number(value);
+  return Number.isInteger(n) && n > 0 && n <= MAX_SIZE ? n : NaN;
+}
+
+function localPath(src) {
+  let pathname;
+  try {
+    pathname = decodeURIComponent(new URL(src, "http://localhost").pathname);
+  } catch (e) {
+    return null;
+  }
+
+  const file = path.resolve("." + path.posix.normalize(pathname));
+  return ALLOWED_ROOTS.some((root) => file.startsWith(root + path.sep))
+    ? file
+    : null;
+}
+
+function placeholder(width, height) {
+  const size = 40;
+  let stripes = "";
+  for (let y = 0; y < height; y += size * 2) {
+    for (let x = 0; x <= width; x += size * 2) {
+      stripes +=
+        `<polygon points="${x},${y} ${x + size},${y} ${x + size * 2},${y + size} ${x + size * 2},${y + size * 2}"/>` +
+        `<polygon points="${x},${y + size} ${x + size},${y + size * 2} ${x},${y + size * 2}"/>`;
+    }
+  }
+
+  return Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+      `<rect width="100%" height="100%" fill="#707070"/>` +
+      `<g fill="#808080">${stripes}</g>` +
+      `<text x="50%" y="50%" fill="#B0B0B0" font-family="sans-serif" font-size="20" text-anchor="middle" dominant-baseline="middle">${width} x ${height}</text>` +
+      `</svg>`,
+  );
+}
 
 /*
  * GET with src, method and params query values
@@ -12,80 +54,44 @@ const gm = GM.subClass({ imageMagick: true });
  * dimension (cutting it if different A/R)
  * "resize" can receive one dimension to resize while keeping the A/R, or 2 to
  * resize the image to be inside the dimensions.
- * this uses "gm" library to do manipulation (you need ImageMagick installed in your system).
+ * Only images stored locally in uploads/ or templates/ can be processed.
  */
-export default (req, res, next) => {
-  var [width, height] = req.query.params.split(",");
+export default async (req, res) => {
+  const { method, src, params } = req.query;
+  if (typeof params !== "string") return res.sendStatus(400);
 
-  if (req.query.method == "placeholder") {
-    var out = gm(width, height, "#707070");
-    res.set("Content-Type", "image/png");
-    var x = 0,
-      y = 0;
-    var size = 40;
-    // stripes
-    while (y < height) {
-      out = out
-        .fill("#808080")
-        .drawPolygon(
-          [x, y],
-          [x + size, y],
-          [x + size * 2, y + size],
-          [x + size * 2, y + size * 2],
-        )
-        .drawPolygon(
-          [x, y + size],
-          [x + size, y + size * 2],
-          [x, y + size * 2],
-        );
-      x = x + size * 2;
-      if (x > width) {
-        x = 0;
-        y = y + size * 2;
-      }
+  const [width, height] = params.split(",").map(parseSize);
+  if (Number.isNaN(width) || Number.isNaN(height)) return res.sendStatus(400);
+
+  let image;
+
+  if (method === "placeholder") {
+    if (!width || !height) return res.sendStatus(400);
+    image = sharp(placeholder(width, height)).png();
+  } else if (method === "resize" || method === "cover") {
+    const file = typeof src === "string" && localPath(src);
+    if (!file) return res.sendStatus(400);
+    if (method === "cover" ? !width || !height : !width && !height) {
+      return res.sendStatus(400);
     }
-    // text
-    out = out
-      .fill("#B0B0B0")
-      .fontSize(20)
-      .drawText(0, 0, width + " x " + height, "center");
-    out.stream("png").pipe(res);
 
-    return;
+    image = sharp(file, { animated: true })
+      .autoOrient()
+      .resize(width, height, {
+        fit: method === "cover" ? "cover" : "inside",
+      });
+  } else {
+    return res.sendStatus(400);
   }
 
-  if (req.query.method === "resize") {
-    var ir = gm(request(req.query.src));
-    ir.format({ bufferStream: true }, (err, format) => {
-      if (err) return next(err);
-
-      res.set("Content-Type", "image/" + format.toLowerCase());
-      ir.autoOrient()
-        .resize(
-          width == "null" ? null : width,
-          height == "null" ? null : height,
-        )
-        .stream()
-        .pipe(res);
-    });
-
-    return;
+  let output;
+  try {
+    output = await image.toBuffer({ resolveWithObject: true });
+  } catch (e) {
+    return res.sendStatus(404);
   }
 
-  if (req.query.method === "cover") {
-    var ic = gm(request(req.query.src));
-    ic.format({ bufferStream: true }, (err, format) => {
-      if (err) return next(err);
-
-      res.set("Content-Type", "image/" + format.toLowerCase());
-      ic.autoOrient()
-        .resize(width, height + "^")
-        .gravity("Center")
-        .extent(width, height + ">")
-        .stream()
-        .pipe(res);
-    });
-
-    return;
-  }
+  res.set("Cache-Control", "public, max-age=86400");
+  res.type(output.info.format);
+  res.send(output.data);
 };

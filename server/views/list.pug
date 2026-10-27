@@ -10,10 +10,10 @@ block one-column
           - continue
         if index == i
           li.active.disabled
-            a(href=`/storage/list/${i}${searchQuery ? `?q=${searchQuery}`:''}`)=i++
+            a(href=`/storage/list/${i}${searchQuery ? `?q=${encodeURIComponent(searchQuery)}`:''}`)=i++
         else
           li
-            a(href=`/storage/list/${i}${searchQuery ? `?q=${searchQuery}`:''}`)=i++
+            a(href=`/storage/list/${i}${searchQuery ? `?q=${encodeURIComponent(searchQuery)}`:''}`)=i++
 
   form.form-horizontal(action='/storage/list/', method="get")
     .input-group

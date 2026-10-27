@@ -9,13 +9,14 @@ export default {
   emailOptions: {
     from: 'Your Name Here <example@example.com>'
   },
-  sendDefautls: {
-    fromAddress: 'nepasrepondre@jlm2017.fr',
-    fromName: 'JLM 2017'
+  sendDefaults: {
+    fromAddress: 'nepasrepondre@example.com',
+    fromName: 'Example'
   },
   users: [
     {
       username: 'admin',
+      // plain text, or a hash generated with `npm run hash-password`
       password: 'password',
       templates: [
         // a list of the available custom templates (directory name) for the user
@@ -27,6 +28,8 @@ export default {
     // the key should be the custom template directory name
     // the value should be the display template name string
   },
-  secret: 'cat keyboard',
+  // long random string, e.g. `openssl rand -base64 48`
+  secret: process.env.SESSION_SECRET,
+  // set to true when served over HTTPS (secure session cookie)
   https: false
 };
